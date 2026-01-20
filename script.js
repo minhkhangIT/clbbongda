@@ -129,20 +129,24 @@ function closeModal() {
 }
 
 function divideTeams() {
+    // 1. Get all available players
     let pool = players.filter(p => p.available);
     if (pool.length < 5) return alert("Cần ít nhất 5 cầu thủ điểm danh");
 
-    // 1. Fully shuffle the pool first so 'Subs' are random
+    // 2. Determine how many people must be substitutes
+    const numTeams = Math.floor(pool.length / 5);
+    const numSubs = pool.length % 5;
+
+    // 3. Shuffle the ENTIRE pool randomly first
     pool = pool.sort(() => Math.random() - 0.5);
 
-    const numTeams = Math.floor(pool.length / 5);
-    
-    // 2. Separate the main players from the subs (now randomly selected)
-    const mainPool = pool.slice(0, numTeams * 5);
-    const subPool = pool.slice(numTeams * 5);
+    // 4. Pull the substitutes from the top of the SHUFFLED list
+    // This ensures subs are chosen by luck, not by points
+    const subPool = pool.slice(0, numSubs);
+    const mainPool = pool.slice(numSubs);
 
-    // 3. Sort ONLY the mainPool by points to balance them
-    // We sort descending to use the "Greedy" balancing algorithm
+    // 5. NOW sort the mainPool by points for the balancing algorithm
+    // We sort descending (Highest -> Lowest)
     mainPool.sort((a, b) => b.point - a.point);
 
     let teams = Array.from({ length: numTeams }, () => ({ 
@@ -150,9 +154,9 @@ function divideTeams() {
         totalPoints: 0 
     }));
 
-    // 4. Distribute players: Always give the next player to the team with the lowest total
+    // 6. Greedy Distribution: Give the strongest available player 
+    // to the team that currently has the lowest total point score.
     mainPool.forEach(player => {
-        // Find the team that currently has the fewest points AND has room
         const targetTeam = teams
             .filter(t => t.members.length < 5)
             .sort((a, b) => a.totalPoints - b.totalPoints)[0];
@@ -161,7 +165,7 @@ function divideTeams() {
         targetTeam.totalPoints += player.point;
     });
 
-    // 5. Final Sort for UI: Sort members within teams by points
+    // 7. Final Sort for UI display
     teams.forEach(t => t.members.sort((a, b) => b.point - a.point));
     subPool.sort((a, b) => b.point - a.point);
 
