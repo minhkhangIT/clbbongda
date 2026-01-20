@@ -161,3 +161,34 @@ li { padding: 8px 0; border-bottom: 1px dashed #eee; display: flex; justify-cont
     padding: 10px;
     font-weight: 600;
 }
+
+.btn-edit {
+    background-color: #f39c12;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.input-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.input-group-vertical input, 
+.input-group-vertical select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.pot-text {
+    font-style: italic; /* In nghiêng */
+    color: #666;        /* Màu xám đậm (nhạt hơn màu đen) */
+    font-size: 0.9em;   /* Có thể thu nhỏ một chút để trông tinh tế hơn */
+    margin-left: 8px;   /* Khoảng cách với tên cầu thủ */
+}

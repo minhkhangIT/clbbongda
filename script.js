@@ -68,7 +68,9 @@ async function toggleAvailable(id, currentStatus) {
     }
 }
 
-// UI RENDERING
+let playerToEditId = null;
+
+// Update renderTable to include the Edit button
 function renderTable() {
     const tbody = document.getElementById('playerTableBody');
     tbody.innerHTML = "";
@@ -82,12 +84,47 @@ function renderTable() {
                     <input type="checkbox" ${p.available ? 'checked' : ''} 
                     onchange="toggleAvailable(${p.id}, ${p.available})">
                 </td>
-                <td><button class="btn-delete" onclick="openDeleteModal(${p.id})">Xóa</button></td>
+                <td>
+                    <button class="btn-edit" onclick="openEditModal(${JSON.stringify(p).replace(/"/g, '&quot;')})">Sửa</button>
+                    <button class="btn-delete" onclick="openDeleteModal(${p.id})">Xóa</button>
+                </td>
             </tr>
         `;
     });
 }
 
+// Open Edit Modal and fill data
+function openEditModal(player) {
+    playerToEditId = player.id;
+    document.getElementById('editPlayerName').value = player.name;
+    document.getElementById('editPlayerPots').value = player.pots;
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+    playerToEditId = null;
+}
+
+// Confirm Edit Action
+document.getElementById('confirmEditBtn').onclick = async function() {
+    const newName = document.getElementById('editPlayerName').value.trim();
+    const newPot = parseInt(document.getElementById('editPlayerPots').value);
+
+    if (!newName) return alert("Tên không được để trống");
+
+    const { error } = await supabaseClient
+        .from('players')
+        .update({ name: newName, pots: newPot })
+        .eq('id', playerToEditId);
+
+    if (error) {
+        alert("Cập nhật thất bại: " + error.message);
+    } else {
+        closeEditModal();
+        fetchPlayers();
+    }
+}
 // 5. DELETE PLAYER
 document.getElementById('confirmDeleteBtn').onclick = async function() {
     if (playerToDeleteId) {
@@ -145,7 +182,7 @@ function renderResults(teams, subs) {
         container.innerHTML += `
             <div class="team-card">
                 <div class="team-header">ĐỘI ${i+1}</div>
-                <ul>${team.members.map(m => `<li><span>${m.name}</span><span class="pot-text">Nhóm ${m.pots}</span></li>`).join('')}</ul>
+                <ul>${team.members.map(m => `<li><span>${m.name}</span><span class="pot-text">H${m.pots}</span></li>`).join('')}</ul>
             </div>`;
     });
 
@@ -153,7 +190,7 @@ function renderResults(teams, subs) {
         container.innerHTML += `
             <div class="team-card sub-card">
                 <div class="team-header">DỰ BỊ 🙁</div>
-                <ul>${subs.map(m => `<li><span>${m.name}</span><span class="pot-text">Nhóm ${m.pots}</span></li>`).join('')}</ul>
+                <ul>${subs.map(m => `<li><span>${m.name}</span><span class="pot-text">H${m.pots}</span></li>`).join('')}</ul>
             </div>`;
     }
 }

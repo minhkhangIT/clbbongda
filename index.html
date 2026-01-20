@@ -53,11 +53,31 @@
 
 <div id="deleteModal" class="modal-overlay">
     <div class="modal-content">
-        <h3>Xóa cầu thủ?</h3>
+        <h3>Xóa cầu thủ</h3>
         <p>Bạn muốn xóa cầu thủ này?</p>
         <div class="modal-actions">
             <button class="btn-secondary" onclick="closeModal()">Không</button>
             <button class="btn-danger" id="confirmDeleteBtn">Có</button>
+        </div>
+    </div>
+</div>
+
+<th>Thao tác</th>
+
+<div id="editModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3>Sửa thông tin</h3>
+        <div class="input-group-vertical">
+            <input type="text" id="editPlayerName" placeholder="Tên cầu thủ">
+            <select id="editPlayerPots">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeEditModal()">Hủy</button>
+            <button class="btn-add" id="confirmEditBtn">Lưu thay đổi</button>
         </div>
     </div>
 </div>
