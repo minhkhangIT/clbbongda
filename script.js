@@ -1,6 +1,6 @@
 // 1. INITIALIZE SUPABASE
 const SUPABASE_URL = 'https://vicrggfxuakpfxzhuktj.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_vm635kgShm0yeSPboZ5ZLA_OX4OPbN4'; // Use ONLY the actual key here
+const SUPABASE_KEY = 'sb_publishable_vm635kgShm0yeSPboZ5ZLA_OX4OPbN4'; 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let players = [];
@@ -9,29 +9,20 @@ let playerToDeleteId = null;
 document.addEventListener('DOMContentLoaded', () => {
     displayDate();
     fetchPlayers();
-    
-    // Setup slider display listener
-    const slider = document.getElementById('playerPoint');
-    const pointVal = document.getElementById('pointVal');
-    slider.oninput = function() {
-        pointVal.innerText = this.value;
-    }
 });
 
-// 2. FETCH DATA
+// 2. FETCH DATA (Cập nhật: Lấy thêm cột available)
 async function fetchPlayers() {
     const { data, error } = await supabaseClient
         .from('players')
-        .select('id, name, point')
-        .order('point', { ascending: false });
+        .select('*')
+        .order('pots', { ascending: true }) // Sắp xếp theo nhóm trước (1 -> 3)
+        .order('id', { ascending: true });
 
     if (error) {
         console.error('Error fetching:', error);
     } else {
-        players = data.map(p => ({
-            ...p,
-            available: false 
-        }));
+        players = data; // Không cần gán cứng false nữa vì đã lấy từ DB
         renderTable();
         updateStats();
     }
@@ -40,48 +31,40 @@ async function fetchPlayers() {
 // 3. ADD PLAYER
 async function addPlayer() {
     const nameInput = document.getElementById('playerName');
-    const pointInput = document.getElementById('playerPoint');
+    const potsInput = document.getElementById('playerPots');
 
-    if (nameInput.value.trim() === "") return alert("Please enter a name");
+    if (nameInput.value.trim() === "") return alert("Vui lòng nhập tên");
 
     const { error } = await supabaseClient
         .from('players')
         .insert([{ 
             name: nameInput.value.trim(), 
-            point: parseInt(pointInput.value)
+            pots: parseInt(potsInput.value),
+            available: false // Mặc định khi thêm mới là chưa điểm danh
         }]);
 
     if (error) {
-        alert("Error saving player: " + error.message);
+        alert("Lỗi lưu cầu thủ: " + error.message);
     } else {
         nameInput.value = "";
         fetchPlayers(); 
     }
 }
 
-// 4. TOGGLE AVAILABILITY (Local only)
-function toggleAvailable(id) {
-    const player = players.find(p => p.id === id);
-    if (player) {
-        player.available = !player.available;
-        updateStats();
-    }
-}
+// 4. TOGGLE AVAILABILITY (Cập nhật: Lưu vào Database)
+async function toggleAvailable(id, currentStatus) {
+    const { error } = await supabaseClient
+        .from('players')
+        .update({ available: !currentStatus }) // Đảo ngược trạng thái hiện tại
+        .eq('id', id);
 
-// 5. DELETE PLAYER
-document.getElementById('confirmDeleteBtn').onclick = async function() {
-    if (playerToDeleteId) {
-        const { error } = await supabaseClient
-            .from('players')
-            .delete()
-            .eq('id', playerToDeleteId);
-
-        if (error) {
-            alert("Delete failed");
-        } else {
-            closeModal();
-            fetchPlayers();
-        }
+    if (error) {
+        alert("Không thể cập nhật trạng thái: " + error.message);
+        fetchPlayers(); // Reset lại UI nếu lỗi
+    } else {
+        // Cập nhật local state để UI thay đổi ngay lập tức mà không cần load lại toàn bộ table nếu muốn
+        // Ở đây ta gọi fetchPlayers để đảm bảo đồng bộ hoàn toàn
+        fetchPlayers();
     }
 }
 
@@ -94,15 +77,85 @@ function renderTable() {
         tbody.innerHTML += `
             <tr>
                 <td>${p.name}</td>
-                <td><strong>${p.point}</strong></td>
+                <td><span class="pot-badge pot-${p.pots}">Nhóm ${p.pots}</span></td>
                 <td>
                     <input type="checkbox" ${p.available ? 'checked' : ''} 
-                    onchange="toggleAvailable(${p.id})">
+                    onchange="toggleAvailable(${p.id}, ${p.available})">
                 </td>
                 <td><button class="btn-delete" onclick="openDeleteModal(${p.id})">Xóa</button></td>
             </tr>
         `;
     });
+}
+
+// 5. DELETE PLAYER
+document.getElementById('confirmDeleteBtn').onclick = async function() {
+    if (playerToDeleteId) {
+        const { error } = await supabaseClient
+            .from('players')
+            .delete()
+            .eq('id', playerToDeleteId);
+
+        if (error) {
+            alert("Xóa thất bại");
+        } else {
+            closeModal();
+            fetchPlayers();
+        }
+    }
+}
+
+// THUẬT TOÁN CHIA ĐỘI (Giữ nguyên logic lọc từ players đã fetch)
+function divideTeams() {
+    let pool = players.filter(p => p.available);
+    if (pool.length < 5) return alert("Cần ít nhất 5 cầu thủ đã điểm danh để chia đội");
+
+    const numTeams = Math.floor(pool.length / 5);
+    const numSubs = pool.length % 5;
+
+    const p1 = pool.filter(p => p.pots === 1).sort(() => Math.random() - 0.5);
+    const p2 = pool.filter(p => p.pots === 2).sort(() => Math.random() - 0.5);
+    const p3 = pool.filter(p => p.pots === 3).sort(() => Math.random() - 0.5);
+
+    const sortedPool = [...p1, ...p2, ...p3];
+    const finalPool = [...sortedPool];
+    const subs = [];
+    
+    for(let i = 0; i < numSubs; i++) {
+        const randomIndex = Math.floor(Math.random() * finalPool.length);
+        subs.push(finalPool.splice(randomIndex, 1)[0]);
+    }
+
+    let teams = Array.from({ length: numTeams }, () => ({ members: [] }));
+    
+    finalPool.forEach((player, index) => {
+        const teamIndex = index % numTeams;
+        teams[teamIndex].members.push(player);
+    });
+
+    renderResults(teams, subs);
+}
+
+// RENDER RESULTS & STATS (Giữ nguyên)
+function renderResults(teams, subs) {
+    const container = document.getElementById('results');
+    container.innerHTML = "";
+
+    teams.forEach((team, i) => {
+        container.innerHTML += `
+            <div class="team-card">
+                <div class="team-header">ĐỘI ${i+1}</div>
+                <ul>${team.members.map(m => `<li><span>${m.name}</span><span class="pot-text">Nhóm ${m.pots}</span></li>`).join('')}</ul>
+            </div>`;
+    });
+
+    if (subs.length > 0) {
+        container.innerHTML += `
+            <div class="team-card sub-card">
+                <div class="team-header">DỰ BỊ 🙁</div>
+                <ul>${subs.map(m => `<li><span>${m.name}</span><span class="pot-text">Nhóm ${m.pots}</span></li>`).join('')}</ul>
+            </div>`;
+    }
 }
 
 function updateStats() {
@@ -112,10 +165,7 @@ function updateStats() {
 
 function displayDate() {
     const now = new Date();
-    const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const year = now.getFullYear();
-    document.getElementById('currentDate').innerText = `${day}/${month}/${year}`;
+    document.getElementById('currentDate').innerText = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
 }
 
 function openDeleteModal(id) {
@@ -126,69 +176,4 @@ function openDeleteModal(id) {
 function closeModal() {
     document.getElementById('deleteModal').style.display = 'none';
     playerToDeleteId = null;
-}
-
-function divideTeams() {
-    // 1. Get all available players
-    let pool = players.filter(p => p.available);
-    if (pool.length < 5) return alert("Cần ít nhất 5 cầu thủ điểm danh");
-
-    // 2. Determine how many people must be substitutes
-    const numTeams = Math.floor(pool.length / 5);
-    const numSubs = pool.length % 5;
-
-    // 3. Shuffle the ENTIRE pool randomly first
-    pool = pool.sort(() => Math.random() - 0.5);
-
-    // 4. Pull the substitutes from the top of the SHUFFLED list
-    // This ensures subs are chosen by luck, not by points
-    const subPool = pool.slice(0, numSubs);
-    const mainPool = pool.slice(numSubs);
-
-    // 5. NOW sort the mainPool by points for the balancing algorithm
-    // We sort descending (Highest -> Lowest)
-    mainPool.sort((a, b) => b.point - a.point);
-
-    let teams = Array.from({ length: numTeams }, () => ({ 
-        members: [], 
-        totalPoints: 0 
-    }));
-
-    // 6. Greedy Distribution: Give the strongest available player 
-    // to the team that currently has the lowest total point score.
-    mainPool.forEach(player => {
-        const targetTeam = teams
-            .filter(t => t.members.length < 5)
-            .sort((a, b) => a.totalPoints - b.totalPoints)[0];
-        
-        targetTeam.members.push(player);
-        targetTeam.totalPoints += player.point;
-    });
-
-    // 7. Final Sort for UI display
-    teams.forEach(t => t.members.sort((a, b) => b.point - a.point));
-    subPool.sort((a, b) => b.point - a.point);
-
-    renderResults(teams, subPool);
-}
-
-function renderResults(teams, subs) {
-    const container = document.getElementById('results');
-    container.innerHTML = "";
-
-    teams.forEach((team, i) => {
-        container.innerHTML += `
-            <div class="team-card">
-                <div class="team-header"><span>ĐỘI ${i+1}</span><span>Chỉ số: ${team.totalPoints}</span></div>
-                <ul>${team.members.map(m => `<li><span>${m.name}</span><span>${m.point}</span></li>`).join('')}</ul>
-            </div>`;
-    });
-
-    if (subs.length > 0) {
-        container.innerHTML += `
-            <div class="team-card sub-card">
-                <div class="team-header">DỰ BỊ</div>
-                <ul>${subs.map(m => `<li><span>${m.name}</span><span>${m.point}</span></li>`).join('')}</ul>
-            </div>`;
-    }
 }
