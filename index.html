@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Team Balancer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>CLB Bóng Đá ⚽</h1>
+    <div id="currentDate" class="date-display"></div>
+
+    <div class="stats-bar">
+        <div class="stat-item">Tổng cầu thủ: <span id="totalPlayers">0</span></div>
+        <div class="stat-item">Tổng điểm danh: <span id="availablePlayers">0</span></div>
+    </div>
+
+    <div class="input-card">
+        <div class="input-group">
+            <input type="text" id="playerName" placeholder="Nhập tên cầu thủ">
+            <div class="slider-container">
+                <label>Chỉ số:</label>
+                <input type="range" id="playerPoint" min="0" max="99" value="50">
+                <span id="pointVal">50</span>
+            </div>
+            <button class="btn-add" onclick="addPlayer()">Thêm cầu thủ</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tên</th>
+                    <th>Chỉ số ↓</th>
+                    <th>Điểm danh</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="playerTableBody"></tbody>
+        </table>
+    </div>
+
+    <button class="btn-divide" onclick="divideTeams()">Chia đội ngẫu nhiên 🎲</i></button>
+
+    <div id="results" class="results-grid"></div>
+</div>
+
+<div id="deleteModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3>Xóa cầu thủ?</h3>
+        <p>Bạn muốn xóa cầu thủ này?</p>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal()">Không</button>
+            <button class="btn-danger" id="confirmDeleteBtn">Có</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
+</body>
+</html>
