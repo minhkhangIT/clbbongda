@@ -192,3 +192,41 @@ li { padding: 8px 0; border-bottom: 1px dashed #eee; display: flex; justify-cont
     font-size: 0.9em;   /* Có thể thu nhỏ một chút để trông tinh tế hơn */
     margin-left: 8px;   /* Khoảng cách với tên cầu thủ */
 }
+
+/* Specific Column Widths */
+
+/* 1. Make the Name column take up as much space as possible */
+th:first-child, 
+td:first-child {
+    width: 50%; /* Adjust this percentage to your liking */
+}
+
+/* 2. Shrink the Seed (Hạt giống) column */
+th:nth-child(2), 
+td:nth-child(2) {
+    width: 15%;
+    text-align: center;
+}
+
+/* 3. Shrink the Attendance (Điểm danh) column */
+th:nth-child(3), 
+td:nth-child(3) {
+    width: 15%;
+    text-align: center;
+}
+
+/* 4. Shrink the Action columns (Edit/Delete buttons) */
+th:nth-child(4), 
+td:nth-child(4),
+th:nth-child(5), 
+td:nth-child(5) {
+    width: 10%;
+    text-align: center;
+    white-space: nowrap; /* Prevents buttons from wrapping */
+}
+
+/* Optional: Ensure buttons don't overflow their small cells */
+.btn-edit, .btn-delete {
+    padding: 5px 8px;
+    font-size: 0.75rem;
+}

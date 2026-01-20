@@ -86,6 +86,8 @@ function renderTable() {
                 </td>
                 <td>
                     <button class="btn-edit" onclick="openEditModal(${JSON.stringify(p).replace(/"/g, '&quot;')})">Sửa</button>
+                </td>
+                <td>
                     <button class="btn-delete" onclick="openDeleteModal(${p.id})">Xóa</button>
                 </td>
             </tr>
