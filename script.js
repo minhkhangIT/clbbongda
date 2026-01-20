@@ -77,7 +77,7 @@ function renderTable() {
         tbody.innerHTML += `
             <tr>
                 <td>${p.name}</td>
-                <td><span class="pot-badge pot-${p.pots}">Nhóm ${p.pots}</span></td>
+                <td><span class="pot-badge pot-${p.pots}">${p.pots}</span></td>
                 <td>
                     <input type="checkbox" ${p.available ? 'checked' : ''} 
                     onchange="toggleAvailable(${p.id}, ${p.available})">
