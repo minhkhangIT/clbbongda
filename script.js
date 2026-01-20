@@ -132,19 +132,27 @@ function divideTeams() {
     let pool = players.filter(p => p.available);
     if (pool.length < 5) return alert("Cần ít nhất 5 cầu thủ điểm danh");
 
+    // 1. Fully shuffle the pool first so 'Subs' are random
     pool = pool.sort(() => Math.random() - 0.5);
-    pool.sort((a, b) => {
-        const randomness = Math.random() * 2 - 1; // Adds/subtracts up to 1 point of "luck"
-        return (b.point + randomness) - (a.point + randomness);
-    });
 
     const numTeams = Math.floor(pool.length / 5);
+    
+    // 2. Separate the main players from the subs (now randomly selected)
     const mainPool = pool.slice(0, numTeams * 5);
     const subPool = pool.slice(numTeams * 5);
 
-    let teams = Array.from({ length: numTeams }, () => ({ members: [], totalPoints: 0 }));
+    // 3. Sort ONLY the mainPool by points to balance them
+    // We sort descending to use the "Greedy" balancing algorithm
+    mainPool.sort((a, b) => b.point - a.point);
 
+    let teams = Array.from({ length: numTeams }, () => ({ 
+        members: [], 
+        totalPoints: 0 
+    }));
+
+    // 4. Distribute players: Always give the next player to the team with the lowest total
     mainPool.forEach(player => {
+        // Find the team that currently has the fewest points AND has room
         const targetTeam = teams
             .filter(t => t.members.length < 5)
             .sort((a, b) => a.totalPoints - b.totalPoints)[0];
@@ -153,6 +161,7 @@ function divideTeams() {
         targetTeam.totalPoints += player.point;
     });
 
+    // 5. Final Sort for UI: Sort members within teams by points
     teams.forEach(t => t.members.sort((a, b) => b.point - a.point));
     subPool.sort((a, b) => b.point - a.point);
 
