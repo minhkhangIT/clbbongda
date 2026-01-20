@@ -133,7 +133,10 @@ function divideTeams() {
     if (pool.length < 5) return alert("Cần ít nhất 5 cầu thủ điểm danh");
 
     pool = pool.sort(() => Math.random() - 0.5);
-    pool.sort((a, b) => b.point - a.point);
+    pool.sort((a, b) => {
+        const randomness = Math.random() * 2 - 1; // Adds/subtracts up to 1 point of "luck"
+        return (b.point + randomness) - (a.point + randomness);
+    });
 
     const numTeams = Math.floor(pool.length / 5);
     const mainPool = pool.slice(0, numTeams * 5);
