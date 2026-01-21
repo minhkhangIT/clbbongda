@@ -17,7 +17,7 @@ async function fetchPlayers() {
         .from('players')
         .select('*')
         .order('pots', { ascending: true }) // Sắp xếp theo nhóm trước (1 -> 3)
-        .order('id', { ascending: true });
+        .order('name', { ascending: true });
 
     if (error) {
         console.error('Error fetching:', error);
