@@ -230,3 +230,25 @@ td:nth-child(5) {
     padding: 5px 8px;
     font-size: 0.75rem;
 }
+
+/* Add to style.css */
+.search-container {
+    margin-bottom: 10px;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
+th {
+    user-select: none; /* Prevents text highlighting while clicking to sort */
+    transition: background 0.2s;
+}
+
+th:hover {
+    background: #144b19; /* Slightly darker than --primary */
+}

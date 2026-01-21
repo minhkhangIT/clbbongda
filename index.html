@@ -31,14 +31,17 @@
             <button class="btn-add" onclick="addPlayer()">Thêm cầu thủ</button>
         </div>
     </div>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Tìm kiếm tên cầu thủ..." onkeyup="filterTable()">
+    </div>
 
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th>Tên</th>
-                    <th>Hạt giống ↓</th>
-                    <th>Điểm danh</th>
+                    <th onclick="sortPlayers('name')" style="cursor:pointer">Tên ↕</th>
+                    <th onclick="sortPlayers('pots')" style="cursor:pointer">Hạt giống ↕</th>
+                    <th onclick="sortPlayers('available')" style="cursor:pointer">Điểm danh ↕</th>
                     <th></th>
                     <th></th>
                 </tr>

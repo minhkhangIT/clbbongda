@@ -5,11 +5,57 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let players = [];
 let playerToDeleteId = null;
+let currentSort = { column: null, direction: 'asc' };
 
 document.addEventListener('DOMContentLoaded', () => {
     displayDate();
     fetchPlayers();
 });
+
+
+// --- SEARCH LOGIC ---
+function filterTable() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#playerTableBody tr');
+
+    rows.forEach(row => {
+        const name = row.cells[0].textContent.toLowerCase();
+        if (name.includes(searchTerm)) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+}
+
+// --- SORTING LOGIC ---
+function sortPlayers(column) {
+    // Toggle direction if same column, otherwise default to asc
+    if (currentSort.column === column) {
+        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+        currentSort.column = column;
+        currentSort.direction = 'asc';
+    }
+
+    players.sort((a, b) => {
+        let valA = a[column];
+        let valB = b[column];
+
+        // Special handling for strings (names)
+        if (typeof valA === 'string') {
+            valA = valA.toLowerCase();
+            valB = valB.toLowerCase();
+        }
+
+        if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
+        if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    renderTable();
+    filterTable(); // Re-apply search filter after sorting
+}
 
 // 2. FETCH DATA (Cập nhật: Lấy thêm cột available)
 async function fetchPlayers() {
