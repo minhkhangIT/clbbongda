@@ -193,34 +193,46 @@ document.getElementById('confirmDeleteBtn').onclick = async function() {
 // THUẬT TOÁN CHIA ĐỘI (Giữ nguyên logic lọc từ players đã fetch)
 function divideTeams() {
     let pool = players.filter(p => p.available);
-    if (pool.length < 5) return alert("Cần ít nhất 5 cầu thủ đã điểm danh để chia đội");
+    if (pool.length < 5) return alert("Cần ít nhất 5 cầu thủ để chia đội");
 
     const numTeams = Math.floor(pool.length / 5);
     const numSubs = pool.length % 5;
 
-    const p1 = pool.filter(p => p.pots === 1).sort(() => Math.random() - 0.5);
-    const p2 = pool.filter(p => p.pots === 2).sort(() => Math.random() - 0.5);
-    const p3 = pool.filter(p => p.pots === 3).sort(() => Math.random() - 0.5);
+    // 1. Gán điểm và xáo trộn nội bộ để đảm bảo tính ngẫu nhiên giữa các cầu thủ cùng hạng
+    const scoredPool = pool.map(p => ({
+        ...p,
+        score: p.pots === 1 ? 3 : (p.pots === 2 ? 2 : 1)
+    })).sort(() => Math.random() - 0.5);
 
-    const sortedPool = [...p1, ...p2, ...p3];
-    const finalPool = [...sortedPool];
+    // 2. Tách dự bị ngẫu nhiên trước khi chia (để không ảnh hưởng đến tính toán điểm đội)
+    const finalPool = [...scoredPool];
     const subs = [];
-    
     for(let i = 0; i < numSubs; i++) {
         const randomIndex = Math.floor(Math.random() * finalPool.length);
         subs.push(finalPool.splice(randomIndex, 1)[0]);
     }
 
-    let teams = Array.from({ length: numTeams }, () => ({ members: [] }));
-    
-    finalPool.forEach((player, index) => {
-        const teamIndex = index % numTeams;
-        teams[teamIndex].members.push(player);
+    // 3. Sắp xếp cầu thủ từ điểm CAO đến THẤP
+    finalPool.sort((a, b) => b.score - a.score);
+
+    // 4. Khởi tạo danh sách đội với thuộc tính totalScore
+    let teams = Array.from({ length: numTeams }, () => ({ 
+        members: [], 
+        totalScore: 0 
+    }));
+
+    // 5. Thuật toán Greedy: Cho cầu thủ vào đội có tổng điểm thấp nhất
+    finalPool.forEach(player => {
+        // Tìm đội đang có ít điểm nhất
+        // Nếu điểm bằng nhau, ưu tiên đội có ít người hơn
+        teams.sort((a, b) => a.totalScore - b.totalScore || a.members.length - b.members.length);
+        
+        teams[0].members.push(player);
+        teams[0].totalScore += player.score;
     });
 
     renderResults(teams, subs);
 }
-
 // RENDER RESULTS & STATS (Giữ nguyên)
 function renderResults(teams, subs) {
     const container = document.getElementById('results');
@@ -229,8 +241,18 @@ function renderResults(teams, subs) {
     teams.forEach((team, i) => {
         container.innerHTML += `
             <div class="team-card">
-                <div class="team-header">ĐỘI ${i+1}</div>
-                <ul>${team.members.map(m => `<li><span>${m.name}</span><span class="pot-text">H${m.pots}</span></li>`).join('')}</ul>
+                <div class="team-header">
+                    <span>ĐỘI ${i + 1}</span>
+                    <span class="team-score-badge">${team.totalScore} điểm</span>
+                </div>
+                <ul>
+                    ${team.members.map(m => `
+                        <li>
+                            <span>${m.name}</span>
+                            <span class="pot-text">H${m.pots}</span>
+                        </li>
+                    `).join('')}
+                </ul>
             </div>`;
     });
 
@@ -238,11 +260,17 @@ function renderResults(teams, subs) {
         container.innerHTML += `
             <div class="team-card sub-card">
                 <div class="team-header">DỰ BỊ 🙁</div>
-                <ul>${subs.map(m => `<li><span>${m.name}</span><span class="pot-text">H${m.pots}</span></li>`).join('')}</ul>
+                <ul>
+                    ${subs.map(m => `
+                        <li>
+                            <span>${m.name}</span>
+                            <span class="pot-text">H${m.pots}</span>
+                        </li>
+                    `).join('')}
+                </ul>
             </div>`;
     }
 }
-
 function updateStats() {
     document.getElementById('totalPlayers').innerText = players.length;
     document.getElementById('availablePlayers').innerText = players.filter(p => p.available).length;
