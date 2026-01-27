@@ -199,9 +199,16 @@ function divideTeams() {
     const numSubs = pool.length % 5;
 
     // 1. Gán điểm và xáo trộn nội bộ để đảm bảo tính ngẫu nhiên giữa các cầu thủ cùng hạng
+   const scoreMap = {
+        1: 4, // Pot 1 là giỏi nhất: 4 điểm
+        2: 3,
+        3: 2,
+        4: 1  // Pot 4: 1 điểm
+    };
+
     const scoredPool = pool.map(p => ({
         ...p,
-        score: p.pots === 1 ? 3 : (p.pots === 2 ? 2 : 1)
+        score: scoreMap[p.pots] || 1 // Nếu không khớp pot nào thì mặc định 1đ
     })).sort(() => Math.random() - 0.5);
 
     // 2. Tách dự bị ngẫu nhiên trước khi chia (để không ảnh hưởng đến tính toán điểm đội)
