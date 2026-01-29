@@ -284,3 +284,28 @@ th:hover {
     padding: 1px 5px;
     border-radius: 4px;
 }
+
+/* Style cho icon sắp xếp */
+th {
+    position: relative;
+    padding-right: 25px !important; /* Tạo không gian cho mũi tên */
+}
+
+th::after {
+    content: "↕";
+    position: absolute;
+    right: 8px;
+    opacity: 0.3;
+}
+
+th.sort-asc::after {
+    content: "↑";
+    opacity: 1;
+    color: #fff;
+}
+
+th.sort-desc::after {
+    content: "↓";
+    opacity: 1;
+    color: #fff;
+}

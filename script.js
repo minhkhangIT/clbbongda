@@ -50,21 +50,34 @@ function removeVietnameseTones(str) {
     str = str.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
     return str;
 }
-// --- SORTING LOGIC ---
-function sortPlayers(column) {
-    // Toggle direction if same column, otherwise default to asc
-    if (currentSort.column === column) {
-        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-    } else {
-        currentSort.column = column;
-        currentSort.direction = 'asc';
+// Cập nhật hàm sortPlayers để xử lý UI và logic sort
+function sortPlayers(column, maintainDirection = false) {
+    const headers = document.querySelectorAll('th');
+    
+    // Nếu maintainDirection = false (người dùng click tay), ta mới toggle hướng
+    if (!maintainDirection) {
+        if (currentSort.column === column) {
+            currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSort.column = column;
+            currentSort.direction = 'asc';
+        }
     }
 
+    // Cập nhật giao diện Header
+    headers.forEach(th => {
+        th.classList.remove('sort-asc', 'sort-desc');
+        // Tìm header dựa trên thuộc tính onclick có chứa tên column
+        if (th.getAttribute('onclick')?.includes(`'${column}'`)) {
+            th.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
+        }
+    });
+
+    // Thực hiện sắp xếp mảng players
     players.sort((a, b) => {
         let valA = a[column];
         let valB = b[column];
 
-        // Special handling for strings (names)
         if (typeof valA === 'string') {
             valA = valA.toLowerCase();
             valB = valB.toLowerCase();
@@ -76,22 +89,26 @@ function sortPlayers(column) {
     });
 
     renderTable();
-    filterTable(); // Re-apply search filter after sorting
+    filterTable(); // Giữ nguyên bộ lọc tìm kiếm
 }
 
-// 2. FETCH DATA (Cập nhật: Lấy thêm cột available)
+// Cập nhật fetchPlayers để gọi lại sort sau khi có dữ liệu mới
 async function fetchPlayers() {
     const { data, error } = await supabaseClient
         .from('players')
-        .select('*')
-        .order('pots', { ascending: true }) // Sắp xếp theo nhóm trước (1 -> 3)
-        .order('name', { ascending: true });
+        .select('*');
 
     if (error) {
         console.error('Error fetching:', error);
     } else {
-        players = data; // Không cần gán cứng false nữa vì đã lấy từ DB
-        renderTable();
+        players = data;
+        
+        // NẾU đang có cột được sort, hãy áp dụng lại sort đó cho dữ liệu mới
+        if (currentSort.column) {
+            sortPlayers(currentSort.column, true); // true để không bị đảo chiều (toggle) khi fetch lại
+        } else {
+            renderTable();
+        }
         updateStats();
     }
 }
@@ -147,8 +164,8 @@ function renderTable() {
         tbody.innerHTML += `
             <tr>
                 <td>${p.name}</td>
-                <td><span class="pot-badge pot-${p.pots}">${p.pots}</span></td>
-                <td>
+                <td style="text-align:center"><span class="pot-badge pot-${p.pots}">${p.pots}</span></td>
+                <td style="text-align:center">
                     <input type="checkbox" ${p.available ? 'checked' : ''} 
                     onchange="toggleAvailable(${p.id}, ${p.available})">
                 </td>
