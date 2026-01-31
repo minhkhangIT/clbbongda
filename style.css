@@ -120,6 +120,32 @@ input[type="text"]:focus {
     transform: translateY(0);
 }
 
+.btn-add {
+
+    background: var(--accent);
+
+    color: white;
+
+    padding: 0 24px;
+
+    border-radius: 10px;
+
+    border: none;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition: all 0.2s;
+
+}
+
+
+
+.btn-add:hover { background: #1546d1; transform: translateY(-1px); }
+
 /* --- THANH KÉO (SLIDER) --- */
 .slider-wrapper { padding: 10px 5px; margin-top: 10px;}
 .slider-label {  margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
