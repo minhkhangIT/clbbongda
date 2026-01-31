@@ -19,17 +19,16 @@
     </div>
 
     <div class="input-card">
-        <div class="input-group-header">
-            <div class="input-name-wrapper">
-                <input type="text" id="playerName" placeholder="Tên cầu thủ (GK thêm gôn)">
-            </div>
-            <button class="btn-add" onclick="addPlayer()">Thêm</button>
+        <div class="input-field-group">
+            <input type="text" id="playerName" placeholder="Nhập tên cầu thủ...">
         </div>
         
         <div class="slider-wrapper">
-            <div class="slider-label">Điểm: <span id="scoreValue">2.5</span></div>
+            <div class="slider-label">Điểm đánh giá: <span id="scoreValue"><b>2.50</b></span></div>
             <input type="range" id="playerScore" min="0" max="5" step="0.25" value="2.5" oninput="updateScoreLabel(this.value)">
         </div>
+
+        <button class="btn-add-full" onclick="addPlayer()">Thêm cầu thủ</button>
     </div>
 
     <div class="search-container">

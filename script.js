@@ -67,7 +67,7 @@ function showToast(message) {
     // Ẩn element sau khi animation kết thúc (3 giây)
     setTimeout(() => {
         toast.classList.remove('show');
-    }, 2000);
+    }, 2200);
 }
 // Cập nhật hàm addPlayer
 async function addPlayer() {
