@@ -260,3 +260,26 @@ th.sort-desc::after { content: "↓"; opacity: 1; }
     th, td { padding: 10px 5px; font-size: 0.8rem; }
     td:first-child { padding-left: 10px; }
 }
+
+/* --- NOTIFICATION --- */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #2e7d32;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: none;
+    z-index: 10000;
+    animation: fadeInOut 3s ease-in-out forwards;
+    font-weight: 600;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(20px); }
+    15% { opacity: 1; transform: translateY(0); }
+    85% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
+}

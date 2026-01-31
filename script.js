@@ -54,6 +54,19 @@ function renderTable() {
     });
 }
 // Thêm cầu thủ mới
+// Hàm hiển thị thông báo
+function showToast(message) {
+    const toast = document.getElementById('notification');
+    toast.innerText = message;
+    toast.style.display = 'block';
+    
+    // Tự động ẩn sau 3 giây (trùng với thời gian animation)
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 3000);
+}
+
+// Cập nhật hàm addPlayer
 async function addPlayer() {
     const nameInput = document.getElementById('playerName');
     const scoreInput = document.getElementById('playerScore');
@@ -69,13 +82,19 @@ async function addPlayer() {
     if (error) {
         alert("Lỗi: " + error.message);
     } else {
+        // Hiện thông báo thành công
+        showToast(`Đã thêm cầu thủ ${nameInput.value.trim()}!`);
+
+        // Reset các ô nhập liệu
         nameInput.value = "";
-        scoreInput.value = 5.0;
-        updateScoreLabel(5.0);
+        
+        // Đặt lại slider về giá trị mặc định 2.5
+        scoreInput.value = 2.5; 
+        updateScoreLabel(2.5);
+        
         fetchPlayers();
     }
 }
-
 // Sắp xếp bảng
 function sortPlayers(column, maintainDirection = false) {
     const headers = document.querySelectorAll('th');
