@@ -15,9 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Cập nhật số hiển thị khi kéo slider
 function updateScoreLabel(val) {
-    document.getElementById('scoreValue').innerText = parseFloat(val).toFixed(2);
+    // Thay vì parseFloat(val).toFixed(2), ta dùng:
+    document.getElementById('scoreValue').innerText = +parseFloat(val).toFixed(2);
 }
-
 // Lấy danh sách từ Database
 async function fetchPlayers() {
     const { data, error } = await supabaseClient.from('players').select('*');
@@ -43,7 +43,7 @@ function renderTable() {
         tbody.innerHTML += `
             <tr>
                 <td>${p.name}</td>
-                <td>${parseFloat(p.pots).toFixed(2)}</td>
+                <td>${+parseFloat(p.pots).toFixed(2)}</td>
                 <td>
                     <input type="checkbox" ${p.available ? 'checked' : ''} 
                     onchange="toggleAvailable(${p.id}, ${p.available})">
@@ -173,7 +173,7 @@ function renderResults(teams, subs) {
             <div class="team-card">
                 <div class="team-header">
                     <span class="team-title">ĐỘI ${i + 1}</span>
-                    <span class="team-score-badge">${team.totalScore.toFixed(1)} Pts</span>
+                    <span class="team-score-badge">${+team.totalScore.toFixed(2)} điểm</span>
                 </div>
                 <ul class="team-list">
                     ${team.members.map(m => {
@@ -183,7 +183,7 @@ function renderResults(teams, subs) {
                                 <span class="player-name ${isGoalie ? 'is-goalie' : ''}">
                                     ${isGoalie ? '🧤' : '👟'} ${m.name}
                                 </span>
-                                <span class="player-score"><i>${parseFloat(m.pots).toFixed(1)}</i></span>
+                                <span class="player-score"><i>${+parseFloat(m.pots).toFixed(2)}</i></span>
                             </li>`;
                     }).join('')}
                 </ul>
@@ -241,7 +241,7 @@ function displayDate() {
 // MODALS SỬA/XÓA
 // Hàm cập nhật con số hiển thị trong Modal Sửa
 function updateEditScoreLabel(val) {
-    document.getElementById('editScoreValue').innerText = parseFloat(val).toFixed(2);
+    document.getElementById('editScoreValue').innerText = +parseFloat(val).toFixed(2);
 }
 
 // Sửa lại hàm openEditModal hiện có
