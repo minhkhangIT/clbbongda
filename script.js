@@ -5,6 +5,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let players = [];
 let playerToDeleteId = null;
+let playerToEditId = null;
 let currentSort = { column: null, direction: 'asc' };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,87 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchPlayers();
 });
 
-
-// --- SEARCH LOGIC (Cập nhật hỗ trợ Tiếng Việt không dấu) ---
-function filterTable() {
-    const searchTerm = removeVietnameseTones(document.getElementById('searchInput').value.toLowerCase());
-    const rows = document.querySelectorAll('#playerTableBody tr');
-
-    rows.forEach(row => {
-        // Lấy tên cầu thủ từ cột đầu tiên, chuyển về chữ thường và bỏ dấu
-        const name = removeVietnameseTones(row.cells[0].textContent.toLowerCase());
-        
-        if (name.includes(searchTerm)) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
-        }
-    });
-}
-
-// Hàm phụ trợ để loại bỏ dấu Tiếng Việt
-function removeVietnameseTones(str) {
-    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
-    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
-    str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
-    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
-    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
-    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
-    str = str.replace(/đ/g, "d");
-    str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A");
-    str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E");
-    str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I");
-    str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O");
-    str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");
-    str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y");
-    str = str.replace(/Đ/g, "D");
-    // Một vài bộ mã cũ có thể gây lỗi, thêm dòng này để chắc chắn
-    str = str.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
-    return str;
-}
-// Cập nhật hàm sortPlayers để xử lý UI và logic sort
-function sortPlayers(column, maintainDirection = false) {
-    const headers = document.querySelectorAll('th');
-    
-    // Nếu maintainDirection = false (người dùng click tay), ta mới toggle hướng
-    if (!maintainDirection) {
-        if (currentSort.column === column) {
-            currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-        } else {
-            currentSort.column = column;
-            currentSort.direction = 'asc';
-        }
-    }
-
-    // Cập nhật giao diện Header
-    headers.forEach(th => {
-        th.classList.remove('sort-asc', 'sort-desc');
-        // Tìm header dựa trên thuộc tính onclick có chứa tên column
-        if (th.getAttribute('onclick')?.includes(`'${column}'`)) {
-            th.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
-        }
-    });
-
-    // Thực hiện sắp xếp mảng players
-    players.sort((a, b) => {
-        let valA = a[column];
-        let valB = b[column];
-
-        if (typeof valA === 'string') {
-            valA = valA.toLowerCase();
-            valB = valB.toLowerCase();
-        }
-
-        if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
-        if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
-        return 0;
-    });
-
-    renderTable();
-    filterTable(); // Giữ nguyên bộ lọc tìm kiếm
-}
-
-// Cập nhật fetchPlayers để gọi lại sort sau khi có dữ liệu mới
+// --- FETCH & RENDER ---
 async function fetchPlayers() {
     const { data, error } = await supabaseClient
         .from('players')
@@ -102,10 +23,8 @@ async function fetchPlayers() {
         console.error('Error fetching:', error);
     } else {
         players = data;
-        
-        // NẾU đang có cột được sort, hãy áp dụng lại sort đó cho dữ liệu mới
         if (currentSort.column) {
-            sortPlayers(currentSort.column, true); // true để không bị đảo chiều (toggle) khi fetch lại
+            sortPlayers(currentSort.column, true);
         } else {
             renderTable();
         }
@@ -113,49 +32,6 @@ async function fetchPlayers() {
     }
 }
 
-// 3. ADD PLAYER
-async function addPlayer() {
-    const nameInput = document.getElementById('playerName');
-    const potsInput = document.getElementById('playerPots');
-
-    if (nameInput.value.trim() === "") return alert("Vui lòng nhập tên");
-
-    const { error } = await supabaseClient
-        .from('players')
-        .insert([{ 
-            name: nameInput.value.trim(), 
-            pots: parseInt(potsInput.value),
-            available: false // Mặc định khi thêm mới là chưa điểm danh
-        }]);
-
-    if (error) {
-        alert("Lỗi lưu cầu thủ: " + error.message);
-    } else {
-        nameInput.value = "";
-        fetchPlayers(); 
-    }
-}
-
-// 4. TOGGLE AVAILABILITY (Cập nhật: Lưu vào Database)
-async function toggleAvailable(id, currentStatus) {
-    const { error } = await supabaseClient
-        .from('players')
-        .update({ available: !currentStatus }) // Đảo ngược trạng thái hiện tại
-        .eq('id', id);
-
-    if (error) {
-        alert("Không thể cập nhật trạng thái: " + error.message);
-        fetchPlayers(); // Reset lại UI nếu lỗi
-    } else {
-        // Cập nhật local state để UI thay đổi ngay lập tức mà không cần load lại toàn bộ table nếu muốn
-        // Ở đây ta gọi fetchPlayers để đảm bảo đồng bộ hoàn toàn
-        fetchPlayers();
-    }
-}
-
-let playerToEditId = null;
-
-// Update renderTable to include the Edit button
 function renderTable() {
     const tbody = document.getElementById('playerTableBody');
     tbody.innerHTML = "";
@@ -164,7 +40,7 @@ function renderTable() {
         tbody.innerHTML += `
             <tr>
                 <td>${p.name}</td>
-                <td style="text-align:center"><span class="pot-badge pot-${p.pots}">${p.pots}</span></td>
+                <td style="text-align:center"><b class="score-badge">${p.pots}</b></td>
                 <td style="text-align:center">
                     <input type="checkbox" ${p.available ? 'checked' : ''} 
                     onchange="toggleAvailable(${p.id}, ${p.available})">
@@ -180,29 +56,49 @@ function renderTable() {
     });
 }
 
-// Open Edit Modal and fill data
+// --- ADD, EDIT, DELETE ---
+async function addPlayer() {
+    const nameInput = document.getElementById('playerName');
+    const scoreInput = document.getElementById('playerScore');
+
+    if (nameInput.value.trim() === "") return alert("Vui lòng nhập tên");
+
+    const { error } = await supabaseClient
+        .from('players')
+        .insert([{ 
+            name: nameInput.value.trim(), 
+            pots: parseFloat(scoreInput.value), // Lưu điểm vào cột pots
+            available: false 
+        }]);
+
+    if (error) {
+        alert("Lỗi lưu cầu thủ: " + error.message);
+    } else {
+        nameInput.value = "";
+        fetchPlayers(); 
+    }
+}
+
 function openEditModal(player) {
     playerToEditId = player.id;
     document.getElementById('editPlayerName').value = player.name;
-    document.getElementById('editPlayerPots').value = player.pots;
+    document.getElementById('editPlayerScore').value = player.pots;
     document.getElementById('editModal').style.display = 'flex';
 }
 
 function closeEditModal() {
     document.getElementById('editModal').style.display = 'none';
-    playerToEditId = null;
 }
 
-// Confirm Edit Action
 document.getElementById('confirmEditBtn').onclick = async function() {
     const newName = document.getElementById('editPlayerName').value.trim();
-    const newPot = parseInt(document.getElementById('editPlayerPots').value);
+    const newScore = parseFloat(document.getElementById('editPlayerScore').value);
 
     if (!newName) return alert("Tên không được để trống");
 
     const { error } = await supabaseClient
         .from('players')
-        .update({ name: newName, pots: newPot })
+        .update({ name: newName, pots: newScore })
         .eq('id', playerToEditId);
 
     if (error) {
@@ -212,85 +108,74 @@ document.getElementById('confirmEditBtn').onclick = async function() {
         fetchPlayers();
     }
 }
-// 5. DELETE PLAYER
-document.getElementById('confirmDeleteBtn').onclick = async function() {
-    if (playerToDeleteId) {
-        const { error } = await supabaseClient
-            .from('players')
-            .delete()
-            .eq('id', playerToDeleteId);
 
-        if (error) {
-            alert("Xóa thất bại");
-        } else {
-            closeModal();
-            fetchPlayers();
-        }
+async function toggleAvailable(id, currentStatus) {
+    const { error } = await supabaseClient
+        .from('players')
+        .update({ available: !currentStatus })
+        .eq('id', id);
+
+    if (error) {
+        alert("Lỗi cập nhật: " + error.message);
+    } else {
+        fetchPlayers();
     }
 }
 
-// THUẬT TOÁN CHIA ĐỘI (Giữ nguyên logic lọc từ players đã fetch)
+document.getElementById('confirmDeleteBtn').onclick = async function() {
+    if (playerToDeleteId) {
+        const { error } = await supabaseClient.from('players').delete().eq('id', playerToDeleteId);
+        if (error) alert("Xóa thất bại");
+        else { closeModal(); fetchPlayers(); }
+    }
+}
+
+// --- THUẬT TOÁN CHIA ĐỘI ---
 function divideTeams() {
     let pool = players.filter(p => p.available);
-    if (pool.length < 5) return alert("Cần ít nhất 5 cầu thủ để chia đội");
+    if (pool.length < 5) return alert("Cần ít nhất 5 người để chia đội");
 
     const numTeams = Math.floor(pool.length / 5);
     const numSubs = pool.length % 5;
 
-    // 1. Gán điểm và xáo trộn để đảm bảo ngẫu nhiên
-    const scoreMap = { 1: 4, 2: 3, 3: 2, 4: 1 };
-    let scoredPool = pool.map(p => ({
+    // 1. Xáo trộn để ngẫu nhiên
+    let shuffledPool = pool.map(p => ({
         ...p,
-        score: scoreMap[p.pots] || 1
+        score: parseFloat(p.pots) || 0
     })).sort(() => Math.random() - 0.5);
 
-    // 2. Tách dự bị ngẫu nhiên trước
+    // 2. Tách dự bị
     const subs = [];
     for (let i = 0; i < numSubs; i++) {
-        const randomIndex = Math.floor(Math.random() * scoredPool.length);
-        subs.push(scoredPool.splice(randomIndex, 1)[0]);
+        const randomIndex = Math.floor(Math.random() * shuffledPool.length);
+        subs.push(shuffledPool.splice(randomIndex, 1)[0]);
     }
 
-    // 3. Phân loại: Nhóm Gôn và Nhóm thường
-    // Sử dụng regex để tìm chữ "gôn" không phân biệt hoa thường
-    const goaliePool = scoredPool.filter(p => p.name.toLowerCase().includes('gôn'));
-    const regularPool = scoredPool.filter(p => !p.name.toLowerCase().includes('gôn'));
-
-    // Sắp xếp nhóm thường từ điểm CAO đến THẤP để chạy Greedy
+    // 3. Tách Gôn và Cầu thủ thường
+    const goaliePool = shuffledPool.filter(p => p.name.toLowerCase().includes('gôn'));
+    const regularPool = shuffledPool.filter(p => !p.name.toLowerCase().includes('gôn'));
     regularPool.sort((a, b) => b.score - a.score);
 
-    // 4. Khởi tạo danh sách đội
-    let teams = Array.from({ length: numTeams }, () => ({ 
-        members: [], 
-        totalScore: 0 
-    }));
+    // 4. Khởi tạo đội
+    let teams = Array.from({ length: numTeams }, () => ({ members: [], totalScore: 0 }));
 
-    // 5. CHIA GÔN TRƯỚC: Chia đều vào các đội
-    // Xáo trộn danh sách gôn một lần nữa để công bằng
-    goaliePool.sort(() => Math.random() - 0.5);
-    
+    // 5. Chia Gôn đều
     goaliePool.forEach((goalie, index) => {
-        // Sử dụng modulo để xoay vòng gôn vào các đội (đội 1, 2, 3 rồi quay lại 1 nếu nhiều gôn)
         const teamIndex = index % numTeams;
         teams[teamIndex].members.push(goalie);
         teams[teamIndex].totalScore += goalie.score;
     });
 
-    // 6. CHIA CẦU THỦ CÒN LẠI: Thuật toán Greedy
+    // 6. Chia cầu thủ bằng thuật toán Greedy (Ưu tiên đội đang yếu/ít người)
     regularPool.forEach(player => {
-        // Tìm đội đang có ít điểm nhất
-        // Nếu điểm bằng nhau, ưu tiên đội có ít người hơn
         teams.sort((a, b) => a.totalScore - b.totalScore || a.members.length - b.members.length);
-        
         teams[0].members.push(player);
         teams[0].totalScore += player.score;
     });
 
-    // Trả lại thứ tự đội ban đầu (Đội 1, 2, 3...) trước khi render
-    // Vì lệnh sort ở trên đã làm đảo lộn thứ tự mảng teams
     renderResults(teams, subs);
 }
-// RENDER RESULTS & STATS (Giữ nguyên)
+
 function renderResults(teams, subs) {
     const container = document.getElementById('results');
     container.innerHTML = "";
@@ -300,13 +185,13 @@ function renderResults(teams, subs) {
             <div class="team-card">
                 <div class="team-header">
                     <span>ĐỘI ${i + 1}</span>
-                    <span class="team-score-badge">${team.totalScore} điểm</span>
+                    <span class="team-score-badge">${team.totalScore.toFixed(1)} điểm</span>
                 </div>
                 <ul>
                     ${team.members.map(m => `
                         <li>
                             <span>${m.name}</span>
-                            <span class="pot-text">H${m.pots}</span>
+                            <span class="pot-text">${m.score}</span>
                         </li>
                     `).join('')}
                 </ul>
@@ -318,16 +203,48 @@ function renderResults(teams, subs) {
             <div class="team-card sub-card">
                 <div class="team-header">DỰ BỊ 🙁</div>
                 <ul>
-                    ${subs.map(m => `
-                        <li>
-                            <span>${m.name}</span>
-                            <span class="pot-text">H${m.pots}</span>
-                        </li>
-                    `).join('')}
+                    ${subs.map(m => `<li><span>${m.name}</span><span class="pot-text">${m.score}</span></li>`).join('')}
                 </ul>
             </div>`;
     }
 }
+
+// --- UTILS ---
+function filterTable() {
+    const searchTerm = removeVietnameseTones(document.getElementById('searchInput').value.toLowerCase());
+    const rows = document.querySelectorAll('#playerTableBody tr');
+    rows.forEach(row => {
+        const name = removeVietnameseTones(row.cells[0].textContent.toLowerCase());
+        row.style.display = name.includes(searchTerm) ? "" : "none";
+    });
+}
+
+function removeVietnameseTones(str) {
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+    str = str.replace(/đ/g, "d");
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+}
+
+function sortPlayers(column, maintainDirection = false) {
+    if (!maintainDirection) {
+        if (currentSort.column === column) currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+        else { currentSort.column = column; currentSort.direction = 'asc'; }
+    }
+    players.sort((a, b) => {
+        let valA = a[column]; let valB = b[column];
+        if (typeof valA === 'string') { valA = valA.toLowerCase(); valB = valB.toLowerCase(); }
+        if (valA < valB) return currentSort.direction === 'asc' ? -1 : 1;
+        if (valA > valB) return currentSort.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+    renderTable();
+}
+
 function updateStats() {
     document.getElementById('totalPlayers').innerText = players.length;
     document.getElementById('availablePlayers').innerText = players.filter(p => p.available).length;
@@ -338,12 +255,5 @@ function displayDate() {
     document.getElementById('currentDate').innerText = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
 }
 
-function openDeleteModal(id) {
-    playerToDeleteId = id;
-    document.getElementById('deleteModal').style.display = 'flex';
-}
-
-function closeModal() {
-    document.getElementById('deleteModal').style.display = 'none';
-    playerToDeleteId = null;
-}
+function openDeleteModal(id) { playerToDeleteId = id; document.getElementById('deleteModal').style.display = 'flex'; }
+function closeModal() { document.getElementById('deleteModal').style.display = 'none'; }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soccer Team Balancer</title>
+    <title>Soccer Team Balancer - Pro Score</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,21 +19,17 @@
 
     <div class="input-card">
         <div class="input-group">
-            <input type="text" id="playerName" placeholder="Nhập tên cầu thủ">
+            <input type="text" id="playerName" placeholder="Tên cầu thủ (Thêm 'gôn' nếu là thủ môn)">
             <div class="select-container">
-                <label>Hạt giống:</label>
-                <select id="playerPots">
-                    <option value="1">1</option>
-                    <option value="2" selected>2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                </select>
+                <label>Điểm:</label>
+                <input type="number" id="playerScore" value="0.5" min="0" max="10" step="0.25">
             </div>
-            <button class="btn-add" onclick="addPlayer()">Thêm cầu thủ</button>
+            <button class="btn-add" onclick="addPlayer()">Thêm</button>
         </div>
     </div>
+
     <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Tìm kiếm tên cầu thủ 🔍" onkeyup="filterTable()">
+        <input type="text" id="searchInput" placeholder="Tìm kiếm cầu thủ 🔍" onkeyup="filterTable()">
     </div>
 
     <div class="table-container">
@@ -41,7 +37,7 @@
             <thead>
                 <tr>
                     <th onclick="sortPlayers('name')" style="cursor:pointer">Tên</th>
-                    <th onclick="sortPlayers('pots')" style="cursor:pointer">Hạt giống</th>
+                    <th onclick="sortPlayers('pots')" style="cursor:pointer">Điểm</th>
                     <th onclick="sortPlayers('available')" style="cursor:pointer">Điểm danh</th>
                     <th></th>
                     <th></th>
@@ -51,7 +47,7 @@
         </table>
     </div>
 
-    <button class="btn-divide" onclick="divideTeams()">Chia đội ngẫu nhiên 🎲</i></button>
+    <button class="btn-divide" onclick="divideTeams()">Chia đội ngẫu nhiên 🎲</button>
 
     <div id="results" class="results-grid"></div>
 </div>
@@ -71,13 +67,10 @@
     <div class="modal-content">
         <h3>Sửa thông tin</h3>
         <div class="input-group-vertical">
-            <input type="text" id="editPlayerName" placeholder="Tên cầu thủ">
-            <select id="editPlayerPots">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-            </select>
+            <label>Tên cầu thủ:</label>
+            <input type="text" id="editPlayerName">
+            <label>Điểm:</label>
+            <input type="number" id="editPlayerScore" step="0.25">
         </div>
         <div class="modal-actions">
             <button class="btn-secondary" onclick="closeEditModal()">Hủy</button>
