@@ -43,7 +43,7 @@ function renderTable() {
         tbody.innerHTML += `
             <tr>
                 <td>${p.name}</td>
-                <td><b>${parseFloat(p.pots).toFixed(2)}</b></td>
+                <td>${parseFloat(p.pots).toFixed(2)}</td>
                 <td>
                     <input type="checkbox" ${p.available ? 'checked' : ''} 
                     onchange="toggleAvailable(${p.id}, ${p.available})">
@@ -58,14 +58,17 @@ function renderTable() {
 function showToast(message) {
     const toast = document.getElementById('notification');
     toast.innerText = message;
-    toast.style.display = 'block';
     
-    // Tự động ẩn sau 3 giây (trùng với thời gian animation)
+    // Reset animation bằng cách xóa và thêm lại class
+    toast.classList.remove('show');
+    void toast.offsetWidth; // Trigger reflow để restart animation
+    toast.classList.add('show');
+    
+    // Ẩn element sau khi animation kết thúc (3 giây)
     setTimeout(() => {
-        toast.style.display = 'none';
-    }, 3000);
+        toast.classList.remove('show');
+    }, 2000);
 }
-
 // Cập nhật hàm addPlayer
 async function addPlayer() {
     const nameInput = document.getElementById('playerName');

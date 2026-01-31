@@ -261,25 +261,34 @@ th.sort-desc::after { content: "↓"; opacity: 1; }
     td:first-child { padding-left: 10px; }
 }
 
-/* --- NOTIFICATION --- */
+/* --- NOTIFICATION (TOP CENTER) --- */
 .notification {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #2e7d32;
+    top: 20px;            /* Cách mép trên 20px */
+    left: 50%;           /* Căn giữa theo chiều ngang */
+    transform: translateX(-50%); /* Dịch ngược lại 50% chiều rộng để chính giữa hoàn toàn */
+    background: var(--primary); /* Sử dụng màu xanh chủ đạo của bạn */
     color: white;
-    padding: 12px 24px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 14px 28px;
+    border-radius: 50px;  /* Bo tròn kiểu viên thuốc cho hiện đại */
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     display: none;
     z-index: 10000;
-    animation: fadeInOut 3s ease-in-out forwards;
     font-weight: 600;
+    min-width: 250px;
+    text-align: center;
+    border: 2px solid rgba(255,255,255,0.2);
 }
 
-@keyframes fadeInOut {
-    0% { opacity: 0; transform: translateY(20px); }
-    15% { opacity: 1; transform: translateY(0); }
-    85% { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-20px); }
+/* Animation rơi từ trên xuống và mờ dần khi biến mất */
+@keyframes fadeInDownOut {
+    0% { opacity: 0; transform: translate(-50%, -20px); }
+    15% { opacity: 1; transform: translate(-50%, 0); }
+    85% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, -20px); }
+}
+
+.notification.show {
+    display: block;
+    animation: fadeInDownOut 3s ease-in-out forwards;
 }
