@@ -183,7 +183,7 @@ function renderResults(teams, subs) {
                                 <span class="player-name ${isGoalie ? 'is-goalie' : ''}">
                                     ${isGoalie ? '🧤' : '👟'} ${m.name}
                                 </span>
-                                <span class="player-score">${parseFloat(m.pots).toFixed(1)}</span>
+                                <span class="player-score"><i>${parseFloat(m.pots).toFixed(1)}</i></span>
                             </li>`;
                     }).join('')}
                 </ul>
@@ -195,7 +195,7 @@ function renderResults(teams, subs) {
             <div class="team-card sub-card">
                 <div class="team-header"><span class="team-title">DỰ BỊ</span></div>
                 <ul class="team-list">
-                    ${subs.map(s => `<li><span class="player-name">🪑 ${s.name}</span><span class="player-score">${parseFloat(s.pots).toFixed(1)}</span></li>`).join('')}
+                    ${subs.map(s => `<li><span class="player-name">🪑 ${s.name}</span><span class="player-score"><i>${parseFloat(s.pots).toFixed(1)}</i></span></li>`).join('')}
                 </ul>
             </div>`;
     }
