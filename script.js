@@ -136,51 +136,54 @@ async function toggleAvailable(id, currentStatus) {
 // THUẬT TOÁN CHIA ĐỘI
 function divideTeams() {
     let pool = players.filter(p => p.available);
-    if (pool.length < 5) return alert("Cần ít nhất 5 người để chia đội");
+    if (pool.length < 10) return alert("Cần ít nhất 10 người để chia 2 đội");
 
     const numTeams = Math.floor(pool.length / 5);
-    
-    // 1. Xáo trộn toàn bộ danh sách ngay từ đầu
-    let shuffledPool = pool.sort(() => Math.random() - 0.5);
-    const subs = shuffledPool.splice(0, pool.length % 5);
+    let bestResult = null;
+    let minDiff = Infinity;
 
-    let teams = Array.from({ length: numTeams }, () => ({ members: [], totalScore: 0 }));
-    
-    // 2. Tách Gôn và Cầu thủ từ danh sách đã xáo trộn
-    const goalies = shuffledPool.filter(p => p.name.toLowerCase().includes('gôn'));
-    const fieldPlayers = shuffledPool.filter(p => !p.name.toLowerCase().includes('gôn'));
-
-    // 3. Chia Gôn: Xáo trộn gôn và phát đều cho các đội
-    const shuffledGoalies = goalies.sort(() => Math.random() - 0.5);
-    shuffledGoalies.forEach((g, i) => {
-        if (teams[i % numTeams]) {
-            teams[i % numTeams].members.push(g);
-            teams[i % numTeams].totalScore += parseFloat(g.pots);
-        }
-    });
-
-    // 4. Chia cầu thủ: Kết hợp giữa ngẫu nhiên và cân bằng
-    // Không dùng .sort((a, b) => b.pots - a.pots) nữa để tránh lặp lại thứ tự
-    fieldPlayers.forEach(p => {
-        // Tìm những đội đang có ít thành viên nhất
-        const minMembers = Math.min(...teams.map(t => t.members.length));
-        let candidateTeams = teams.filter(t => t.members.length === minMembers);
-
-        // Trong những đội ít người đó, chọn đội có tổng điểm thấp nhất
-        candidateTeams.sort((a, b) => a.totalScore - b.totalScore);
+    // Chạy thử 200 lần để tìm phương án cân bằng nhất
+    for (let i = 0; i < 200; i++) {
+        let currentTeams = Array.from({ length: numTeams }, () => ({ members: [], totalScore: 0 }));
         
-        // Thêm một chút yếu tố may rủi: nếu 2 đội chênh lệch điểm cực ít, 
-        // có thể chọn ngẫu nhiên 1 trong 2 thay vì luôn chọn đội thấp nhất
-        let targetTeam = candidateTeams[0];
-        if (candidateTeams.length > 1 && Math.abs(candidateTeams[0].totalScore - candidateTeams[1].totalScore) < 0.5) {
-            targetTeam = candidateTeams[Math.floor(Math.random() * 2)];
+        // 1. Xáo trộn toàn bộ danh sách
+        let shuffled = [...pool].sort(() => Math.random() - 0.5);
+        let tempSubs = shuffled.splice(0, pool.length % 5);
+
+        // 2. Tách gôn và cầu thủ
+        const goalies = shuffled.filter(p => p.name.toLowerCase().includes('gôn')).sort(() => Math.random() - 0.5);
+        const fieldPlayers = shuffled.filter(p => !p.name.toLowerCase().includes('gôn')).sort(() => Math.random() - 0.5);
+
+        // 3. Chia gôn trước
+        goalies.forEach((g, idx) => {
+            let targetTeam = currentTeams[idx % numTeams];
+            targetTeam.members.push(g);
+            targetTeam.totalScore += parseFloat(g.pots);
+        });
+
+        // 4. Chia cầu thủ (Greedy trên danh sách đã xáo trộn)
+        fieldPlayers.forEach(p => {
+            // Sắp xếp các đội theo tổng điểm hiện tại để tìm đội thấp nhất
+            currentTeams.sort((a, b) => a.totalScore - b.totalScore || a.members.length - b.members.length);
+            currentTeams[0].members.push(p);
+            currentTeams[0].totalScore += parseFloat(p.pots);
+        });
+
+        // 5. Tính độ chênh lệch (Range) giữa đội cao nhất và thấp nhất
+        const scores = currentTeams.map(t => t.totalScore);
+        const diff = Math.max(...scores) - Math.min(...scores);
+
+        // Nếu phương án này cân bằng hơn phương án cũ, hãy giữ lại
+        if (diff < minDiff) {
+            minDiff = diff;
+            bestResult = { teams: JSON.parse(JSON.stringify(currentTeams)), subs: tempSubs };
         }
+        
+        // Nếu độ chênh lệch đã cực thấp (ví dụ < 0.25), dừng sớm luôn cho nhanh
+        if (minDiff < 0.25) break;
+    }
 
-        targetTeam.members.push(p);
-        targetTeam.totalScore += parseFloat(p.pots);
-    });
-
-    renderResults(teams, subs);
+    renderResults(bestResult.teams, bestResult.subs);
 }
 
 // HIỂN THỊ KẾT QUẢ
