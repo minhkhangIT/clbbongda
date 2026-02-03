@@ -139,25 +139,45 @@ function divideTeams() {
     if (pool.length < 5) return alert("Cần ít nhất 5 người để chia đội");
 
     const numTeams = Math.floor(pool.length / 5);
-    let shuffled = pool.sort(() => Math.random() - 0.5);
-    const subs = shuffled.splice(0, pool.length % 5);
+    
+    // 1. Xáo trộn toàn bộ danh sách ngay từ đầu
+    let shuffledPool = pool.sort(() => Math.random() - 0.5);
+    const subs = shuffledPool.splice(0, pool.length % 5);
 
     let teams = Array.from({ length: numTeams }, () => ({ members: [], totalScore: 0 }));
     
-    const goalies = shuffled.filter(p => p.name.toLowerCase().includes('gôn'));
-    const fieldPlayers = shuffled.filter(p => !p.name.toLowerCase().includes('gôn')).sort((a, b) => b.pots - a.pots);
+    // 2. Tách Gôn và Cầu thủ từ danh sách đã xáo trộn
+    const goalies = shuffledPool.filter(p => p.name.toLowerCase().includes('gôn'));
+    const fieldPlayers = shuffledPool.filter(p => !p.name.toLowerCase().includes('gôn'));
 
-    // Chia gôn
-    goalies.forEach((g, i) => {
-        teams[i % numTeams].members.push(g);
-        teams[i % numTeams].totalScore += parseFloat(g.pots);
+    // 3. Chia Gôn: Xáo trộn gôn và phát đều cho các đội
+    const shuffledGoalies = goalies.sort(() => Math.random() - 0.5);
+    shuffledGoalies.forEach((g, i) => {
+        if (teams[i % numTeams]) {
+            teams[i % numTeams].members.push(g);
+            teams[i % numTeams].totalScore += parseFloat(g.pots);
+        }
     });
 
-    // Chia cầu thủ (Greedy)
+    // 4. Chia cầu thủ: Kết hợp giữa ngẫu nhiên và cân bằng
+    // Không dùng .sort((a, b) => b.pots - a.pots) nữa để tránh lặp lại thứ tự
     fieldPlayers.forEach(p => {
-        teams.sort((a, b) => a.totalScore - b.totalScore || a.members.length - b.members.length);
-        teams[0].members.push(p);
-        teams[0].totalScore += parseFloat(p.pots);
+        // Tìm những đội đang có ít thành viên nhất
+        const minMembers = Math.min(...teams.map(t => t.members.length));
+        let candidateTeams = teams.filter(t => t.members.length === minMembers);
+
+        // Trong những đội ít người đó, chọn đội có tổng điểm thấp nhất
+        candidateTeams.sort((a, b) => a.totalScore - b.totalScore);
+        
+        // Thêm một chút yếu tố may rủi: nếu 2 đội chênh lệch điểm cực ít, 
+        // có thể chọn ngẫu nhiên 1 trong 2 thay vì luôn chọn đội thấp nhất
+        let targetTeam = candidateTeams[0];
+        if (candidateTeams.length > 1 && Math.abs(candidateTeams[0].totalScore - candidateTeams[1].totalScore) < 0.5) {
+            targetTeam = candidateTeams[Math.floor(Math.random() * 2)];
+        }
+
+        targetTeam.members.push(p);
+        targetTeam.totalScore += parseFloat(p.pots);
     });
 
     renderResults(teams, subs);
