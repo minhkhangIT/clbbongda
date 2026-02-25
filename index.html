@@ -88,6 +88,16 @@
     </div>
 </div>
 <div id="notification" class="notification"></div>
+<div id="uncheckAllModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3>Xóa điểm danh</h3>
+        <p>Bạn có chắc chắn muốn hủy điểm danh toàn bộ cầu thủ không?</p>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeUncheckModal()">Không</button>
+            <button class="btn-danger" id="confirmUncheckBtn">Xóa hết</button>
+        </div>
+    </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
 </body>

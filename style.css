@@ -381,3 +381,31 @@ th.sort-desc::after { content: "↓"; opacity: 1; }
     display: block;
     animation: fadeInDownOut 3s ease-in-out forwards;
 }
+
+.btn-uncheck-all {
+    background: #fff;
+    color: var(--danger);
+    border: 1.5px solid var(--danger);
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 10px;
+}
+
+.btn-uncheck-all:hover {
+    background: var(--danger);
+    color: white;
+    box-shadow: 0 4px 8px rgba(198, 40, 40, 0.2);
+}
+
+/* Đảm bảo nút này hiển thị tốt trên mobile */
+@media (max-width: 650px) {
+    .btn-uncheck-all {
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%;
+    }
+}

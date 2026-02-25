@@ -308,22 +308,30 @@ document.getElementById('confirmDeleteBtn').onclick = async () => {
     closeModal(); fetchPlayers();
 };
 
-async function uncheckAll() {
-    // Xác nhận trước khi xóa để tránh bấm nhầm
-    if (!confirm("Xóa điểm danh toàn bộ cầu thủ không?")) return;
+// Mở modal xác nhận
+function uncheckAll() {
+    document.getElementById('uncheckAllModal').style.display = 'flex';
+}
 
-    // Hiển thị thông báo đang xử lý
+// Đóng modal
+function closeUncheckModal() {
+    document.getElementById('uncheckAllModal').style.display = 'none';
+}
+
+// Xử lý khi bấm nút "Xóa sạch" trong modal
+document.getElementById('confirmUncheckBtn').onclick = async () => {
+    closeUncheckModal();
     showToast("Đang đặt lại danh sách...");
 
     const { error } = await supabaseClient
         .from('players')
         .update({ available: false })
-        .eq('available', true); // Chỉ cập nhật những người đang được tích chọn
+        .eq('available', true); // Chỉ tác động lên những người đang check
 
     if (error) {
         alert("Lỗi: " + error.message);
     } else {
-        showToast("Đã xóa điểm danh toàn bộ!");
-        fetchPlayers(); // Cập nhật lại giao diện và Stats
+        showToast("Đã làm mới danh sách điểm danh!");
+        fetchPlayers(); // Tải lại bảng và stats
     }
-}
+};
