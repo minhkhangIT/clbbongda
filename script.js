@@ -112,12 +112,22 @@ function sortPlayers(column, maintainDirection = false) {
     }
 
     headers.forEach(h => {
+        // Reset tất cả các icon về mặc định
         h.classList.remove('sort-asc', 'sort-desc');
+        const icon = h.querySelector('.sort-icon');
+        if (icon) icon.innerText = '↕';
+
+        // Chỉ cập nhật header đang được chọn
         if (h.getAttribute('onclick')?.includes(`'${column}'`)) {
             h.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
+            const currentIcon = h.querySelector('.sort-icon');
+            if (currentIcon) {
+                currentIcon.innerText = currentSort.direction === 'asc' ? '▲' : '▼';
+            }
         }
     });
 
+    // ... phần logic sort bên dưới giữ nguyên ...
     players.sort((a, b) => {
         let vA = a[column], vB = b[column];
         if (column === 'pots') { vA = parseFloat(vA); vB = parseFloat(vB); }
