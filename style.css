@@ -171,7 +171,41 @@ input[type="range"]::-webkit-slider-thumb {
 
 /* --- TÌM KIẾM --- */
 .search-container { margin-bottom: 15px; }
-.search-wrapper { position: relative; display: flex; align-items: center; }
+.search-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-uncheck-all {
+    background-color: #ffffff;
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.btn-uncheck-all:hover {
+    background-color: var(--danger);
+    color: white;
+}
+
+/* Mobile responsive */
+@media (max-width: 650px) {
+    .search-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .btn-uncheck-all {
+        width: 100%;
+        order: 2; /* Đẩy nút xuống dưới ô tìm kiếm trên mobile */
+    }
+}
 .search-icon { position: absolute; left: 15px; color: var(--text-secondary); pointer-events: none; }
 #searchInput { padding-left: 45px; background-color: white; border-color: var(--border-color); }
 

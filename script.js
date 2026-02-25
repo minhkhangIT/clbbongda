@@ -307,3 +307,23 @@ document.getElementById('confirmDeleteBtn').onclick = async () => {
     await supabaseClient.from('players').delete().eq('id', playerToDeleteId);
     closeModal(); fetchPlayers();
 };
+
+async function uncheckAll() {
+    // Xác nhận trước khi xóa để tránh bấm nhầm
+    if (!confirm("Xóa điểm danh toàn bộ cầu thủ không?")) return;
+
+    // Hiển thị thông báo đang xử lý
+    showToast("Đang đặt lại danh sách...");
+
+    const { error } = await supabaseClient
+        .from('players')
+        .update({ available: false })
+        .eq('available', true); // Chỉ cập nhật những người đang được tích chọn
+
+    if (error) {
+        alert("Lỗi: " + error.message);
+    } else {
+        showToast("Đã xóa điểm danh toàn bộ!");
+        fetchPlayers(); // Cập nhật lại giao diện và Stats
+    }
+}
