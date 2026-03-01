@@ -13,14 +13,11 @@
     <h1>CLB Bóng Đá ⚽</h1>
     <div id="currentDate" class="date-display"></div>
 
-    <div class="stats-bar">
-        <div class="stat-item">Tổng cầu thủ: <span id="totalPlayers">0</span></div>
-        <div class="stat-item">Tổng điểm danh: <span id="availablePlayers">0</span></div>
-    </div>
+    
 
     <div class="input-card">
         <div class="input-field-group">
-            <input type="text" id="playerName" placeholder="Nhập tên cầu thủ...">
+            <input type="text" id="playerName" placeholder="Nhập tên cầu thủ muốn thêm...">
         </div>
         
         <div class="slider-wrapper">
@@ -30,14 +27,21 @@
 
         <button class="btn-add-full" onclick="addPlayer()">Thêm cầu thủ</button>
     </div>
-
     <div class="search-container">
         <div class="search-wrapper">
-            <input type="text" id="searchInput" placeholder="Nhập tìm cầu thủ..." onkeyup="filterTable()">
             <button class="btn-uncheck-all" onclick="uncheckAll()">Xóa điểm danh toàn bộ</button>
+            <input type="text" id="searchInput" placeholder="Nhập tìm kiếm cầu thủ..." onkeyup="filterTable()">
         </div>
     </div>
-
+    <div class="search-container">
+        <div class="search-wrapper">
+            
+        </div>
+    </div>
+    <div class="stats-bar">
+        <div class="stat-item">Tổng cầu thủ: <span id="totalPlayers">0</span></div>
+        <div class="stat-item">Tổng điểm danh: <span id="availablePlayers">0</span></div>
+    </div>
     <div class="table-container">
         <table>
             <thead>

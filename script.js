@@ -172,11 +172,21 @@ function divideTeams() {
         });
 
         // 4. Chia cầu thủ (Greedy trên danh sách đã xáo trộn)
+        // 4. Chia cầu thủ (Ưu tiên đội thiếu người trước, sau đó mới xét đến điểm thấp)
         fieldPlayers.forEach(p => {
-            // Sắp xếp các đội theo tổng điểm hiện tại để tìm đội thấp nhất
-            currentTeams.sort((a, b) => a.totalScore - b.totalScore || a.members.length - b.members.length);
-            currentTeams[0].members.push(p);
-            currentTeams[0].totalScore += parseFloat(p.pots);
+            // Tìm các đội còn chỗ trống (ít hơn 5 người)
+            let availableTeams = currentTeams.filter(t => t.members.length < 5);
+            
+            // Nếu tất cả các đội đều đã đủ 5 người (trường hợp hiếm hoặc pool lẻ), 
+            // thì mới lấy toàn bộ danh sách đội
+            if (availableTeams.length === 0) availableTeams = currentTeams;
+
+            // Sắp xếp các đội ĐANG THIẾU NGƯỜI theo tổng điểm từ thấp đến cao
+            availableTeams.sort((a, b) => a.totalScore - b.totalScore);
+
+            // Đẩy cầu thủ vào đội có điểm thấp nhất trong số các đội thiếu người
+            availableTeams[0].members.push(p);
+            availableTeams[0].totalScore += parseFloat(p.pots);
         });
 
         // 5. Tính độ chênh lệch (Range) giữa đội cao nhất và thấp nhất
