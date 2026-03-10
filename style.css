@@ -39,14 +39,6 @@ body {
 
 h1 { text-align: center; color: var(--primary); margin-bottom: 5px; font-size: 1.8rem; }
 
-.date-display {
-    text-align: center;
-    color: var(--text-secondary);
-    font-weight: 500;
-    margin-bottom: 20px;
-    font-size: 0.9rem;
-}
-
 /* --- STATS BAR --- */
 .stats-bar {
     display: flex;

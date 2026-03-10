@@ -9,7 +9,6 @@ let playerToEditId = null;
 let currentSort = { column: null, direction: 'asc' };
 
 document.addEventListener('DOMContentLoaded', () => {
-    displayDate();
     fetchPlayers();
 });
 
@@ -272,13 +271,7 @@ function removeVietnameseTones(str) {
 }
 
 function updateStats() {
-    document.getElementById('totalPlayers').innerText = players.length;
     document.getElementById('availablePlayers').innerText = players.filter(p => p.available).length;
-}
-
-function displayDate() {
-    const now = new Date();
-    document.getElementById('currentDate').innerText = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
 }
 
 // MODALS SỬA/XÓA
