@@ -151,55 +151,61 @@ function divideTeams() {
     let bestResult = null;
     let minDiff = Infinity;
 
-    // Chạy thử 200 lần để tìm phương án cân bằng nhất
-    for (let i = 0; i < 200; i++) {
+    // Define all pairs that should NOT be on the same team
+    const forbiddenPairs = [
+        ["Nhân AI", "Trí 1970"],
+        ["Nhân AI", "Hùng Đặng"],
+        ["Lộc", "Mẫn"]
+    ];
+
+    for (let i = 0; i < 500; i++) { // Increased iterations slightly for more constraints
         let currentTeams = Array.from({ length: numTeams }, () => ({ members: [], totalScore: 0 }));
         
-        // 1. Xáo trộn toàn bộ danh sách
         let shuffled = [...pool].sort(() => Math.random() - 0.5);
         let tempSubs = shuffled.splice(0, pool.length % 5);
 
-        // 2. Tách gôn và cầu thủ
         const goalies = shuffled.filter(p => p.name.toLowerCase().includes('gôn')).sort(() => Math.random() - 0.5);
         const fieldPlayers = shuffled.filter(p => !p.name.toLowerCase().includes('gôn')).sort(() => Math.random() - 0.5);
 
-        // 3. Chia gôn trước
+        // 1. Assign Goalies
         goalies.forEach((g, idx) => {
             let targetTeam = currentTeams[idx % numTeams];
             targetTeam.members.push(g);
             targetTeam.totalScore += parseFloat(g.pots);
         });
 
-        // 4. Chia cầu thủ (Greedy trên danh sách đã xáo trộn)
-        // 4. Chia cầu thủ (Ưu tiên đội thiếu người trước, sau đó mới xét đến điểm thấp)
+        // 2. Assign Field Players
         fieldPlayers.forEach(p => {
-            // Tìm các đội còn chỗ trống (ít hơn 5 người)
             let availableTeams = currentTeams.filter(t => t.members.length < 5);
-            
-            // Nếu tất cả các đội đều đã đủ 5 người (trường hợp hiếm hoặc pool lẻ), 
-            // thì mới lấy toàn bộ danh sách đội
             if (availableTeams.length === 0) availableTeams = currentTeams;
 
-            // Sắp xếp các đội ĐANG THIẾU NGƯỜI theo tổng điểm từ thấp đến cao
             availableTeams.sort((a, b) => a.totalScore - b.totalScore);
-
-            // Đẩy cầu thủ vào đội có điểm thấp nhất trong số các đội thiếu người
             availableTeams[0].members.push(p);
             availableTeams[0].totalScore += parseFloat(p.pots);
         });
 
-        // 5. Tính độ chênh lệch (Range) giữa đội cao nhất và thấp nhất
+        // 3. Check all constraints
         const scores = currentTeams.map(t => t.totalScore);
         const diff = Math.max(...scores) - Math.min(...scores);
 
-        // Nếu phương án này cân bằng hơn phương án cũ, hãy giữ lại
-        if (diff < minDiff) {
+        const hasConflict = currentTeams.some(team => {
+            const names = team.members.map(m => m.name);
+            // Returns true if ANY forbidden pair is found in the same team
+            return forbiddenPairs.some(([p1, p2]) => names.includes(p1) && names.includes(p2));
+        });
+
+        // 4. Update best result if no conflicts exist
+        if (!hasConflict && diff < minDiff) {
             minDiff = diff;
             bestResult = { teams: JSON.parse(JSON.stringify(currentTeams)), subs: tempSubs };
         }
         
-        // Nếu độ chênh lệch đã cực thấp (ví dụ < 0.25), dừng sớm luôn cho nhanh
-        if (minDiff < 0.25) break;
+        // Early break if it's very balanced and follows all rules
+        if (minDiff < 0.25 && !hasConflict) break;
+    }
+
+    if (!bestResult) {
+        return alert("Không tìm thấy phương án chia đội thỏa mãn các yêu cầu tách cặp. Hãy thử lại hoặc tăng số lần lặp!");
     }
 
     renderResults(bestResult.teams, bestResult.subs);
