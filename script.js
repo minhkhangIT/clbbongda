@@ -248,6 +248,9 @@ function renderResults(teams, subs) {
             </div>`;
     }
     container.scrollIntoView({ behavior: 'smooth' });
+
+    // Show the share button after teams are divided
+    document.getElementById('btnShareZalo').style.display = 'block';
 }
 
 // TIỆN ÍCH
@@ -379,3 +382,45 @@ window.addEventListener("DOMContentLoaded", () => {
     card.classList.add("collapsed");
     btn.textContent = "⬇";
 });
+
+// New function to capture and share
+async function shareTeams() {
+    const resultsElement = document.getElementById('results');
+    const shareBtn = document.getElementById('btnShareZalo');
+    
+    // Hide button temporarily so it doesn't appear in the screenshot
+    shareBtn.style.display = 'none';
+
+    try {
+        const canvas = await html2canvas(resultsElement, {
+            backgroundColor: "#f0f2f5", // Matches your body bg
+            scale: 2, // Higher quality
+            useCORS: true
+        });
+
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], 'teams.png', { type: 'image/png' });
+            
+            // Check if mobile sharing is supported
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: 'Kết quả chia đội',
+                    text: 'Danh sách đội bóng hôm nay!'
+                });
+            } else {
+                // Fallback for PC: Download the image
+                const link = document.createElement('a');
+                link.download = 'chia-doi-bong-da.png';
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                alert("Thiết bị không hỗ trợ chia sẻ trực tiếp. Ảnh đã được tải về máy!");
+            }
+        });
+    } catch (err) {
+        console.error("Lỗi chụp ảnh:", err);
+        alert("Không thể chụp ảnh màn hình.");
+    } finally {
+        shareBtn.style.display = 'block';
+    }
+}

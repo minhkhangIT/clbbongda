@@ -67,6 +67,9 @@
     <button class="btn-divide" onclick="divideTeams()">Chia đội ngẫu nhiên 🎲</button>
 
     <div id="results" class="results-grid"></div>
+    <button id="btnShareZalo" class="btn-share" onclick="shareTeams()" style="display: none;">
+        Chia sẻ lên Zalo
+    </button>
 </div>
 
 <div id="deleteModal" class="modal-overlay">
@@ -109,6 +112,9 @@
         </div>
     </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
 </body>
