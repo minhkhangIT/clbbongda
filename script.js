@@ -354,3 +354,28 @@ document.getElementById('confirmUncheckBtn').onclick = async () => {
         fetchPlayers(); // Tải lại bảng và stats
     }
 };
+
+function toggleInputCard() {
+    const card = document.getElementById('inputCard');
+    card.classList.toggle('collapsed');
+    
+    // Optional: Save state to localStorage so it stays closed on refresh
+    const isCollapsed = card.classList.contains('collapsed');
+    localStorage.setItem('inputCardCollapsed', isCollapsed);
+}
+
+// Optional: Check local storage on page load
+window.addEventListener('DOMContentLoaded', () => {
+    const isCollapsed = localStorage.getItem('inputCardCollapsed') === 'true';
+    if (isCollapsed) {
+        document.getElementById('inputCard').classList.add('collapsed');
+    }
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+    const card = document.getElementById("inputCard");
+    const btn = document.getElementById("toggleBtn");
+
+    card.classList.add("collapsed");
+    btn.textContent = "⬇";
+});
