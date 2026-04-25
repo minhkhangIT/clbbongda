@@ -358,15 +358,3 @@ td:first-child { text-align: left; padding-left: 15px; font-weight: 500; }
     background: #0056d2;
     transform: translateY(-2px);
 }
-
-.team-card, .results-grid {
-    /* This is the magic fix for blurry text on screenshots */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-}
-
-.player-name, .player-score {
-    /* Ensures the text stays solid and doesn't "thin out" */
-    transform: translateZ(0); 
-}
