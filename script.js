@@ -406,7 +406,7 @@ async function shareTeams() {
                 await navigator.share({
                     files: [file],
                     title: 'Kết quả chia đội',
-                    text: 'Danh sách đội bóng hôm nay!'
+                    text: 'Siuuu'
                 });
             } else {
                 // Fallback for PC: Download the image
