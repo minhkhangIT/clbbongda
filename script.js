@@ -394,7 +394,7 @@ async function shareTeams() {
     try {
         const canvas = await html2canvas(resultsElement, {
             backgroundColor: "#f0f2f5", // Matches your body bg
-            scale: 3, // Higher quality
+            scale: 2, // Higher quality
             useCORS: true
         });
 
