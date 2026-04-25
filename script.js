@@ -388,44 +388,38 @@ async function shareTeams() {
     const resultsElement = document.getElementById('results');
     const shareBtn = document.getElementById('btnShareZalo');
     
-    // Hide button so it's not in the picture
+    // Hide button temporarily so it doesn't appear in the screenshot
     shareBtn.style.display = 'none';
-    showToast("Đang tạo ảnh chất lượng cao...");
 
     try {
         const canvas = await html2canvas(resultsElement, {
-            // High-resolution settings
-            scale: 3,             // Increases pixel density (3x is very sharp)
-            useCORS: true,        // Helps with external fonts/images
-            logging: false,
-            backgroundColor: "#f0f2f5", // Matches your app background
-            windowWidth: resultsElement.scrollWidth,
-            windowHeight: resultsElement.scrollHeight
+            backgroundColor: null, // Matches your body bg
+            scale: 3, // Higher quality
+            useCORS: true
         });
 
-        // Convert to high-quality PNG
         canvas.toBlob(async (blob) => {
-            if (!blob) return;
-
             const file = new File([blob], 'teams.png', { type: 'image/png' });
             
+            // Check if mobile sharing is supported
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     files: [file],
                     title: 'Kết quả chia đội',
+                    text: 'Danh sách đội bóng hôm nay!'
                 });
             } else {
-                // Fallback: Download if sharing isn't supported
+                // Fallback for PC: Download the image
                 const link = document.createElement('a');
-                link.download = 'teams_hd.png';
+                link.download = 'chia-doi-bong-da.png';
                 link.href = URL.createObjectURL(blob);
                 link.click();
+                alert("Thiết bị không hỗ trợ chia sẻ trực tiếp. Ảnh đã được tải về máy!");
             }
-        }, 'image/png', 1.0); // 1.0 is maximum quality
-
+        });
     } catch (err) {
         console.error("Lỗi chụp ảnh:", err);
-        alert("Không thể chụp ảnh.");
+        alert("Không thể chụp ảnh màn hình.");
     } finally {
         shareBtn.style.display = 'block';
     }

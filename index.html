@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,115 +8,119 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-<div class="container">
-    <h1>CLB Bóng Đá ⚽</h1>
-    <div class="input-card" id="inputCard">
-    <div class="card-header" onclick="toggleInputCard()">
-        <h4>Thêm cầu thủ mới</h4>
-        <span id="toggleArrow" class="toggle-icon">▼</span>
-    </div>
-    <div id="cardContent" class="card-content">
-        <div class="input-field-group">
-            <input type="text" id="playerName" placeholder="Nhập tên cầu thủ muốn thêm...">
-        </div>
-        
-        <div class="slider-wrapper">
-            <div class="slider-label">Điểm đánh giá: <span id="scoreValue"><b>2.5</b></span></div>
-            <input type="range" id="playerScore" min="0" max="5" step="0.25" value="2.5" oninput="updateScoreLabel(this.value)">
-        </div>
-        <button class="btn-add-full" onclick="addPlayer()">Thêm cầu thủ</button>
-    </div>
-</div>
-    <br></br>
-    <div class="search-container">
-        <div class="search-wrapper">
-            <button class="btn-uncheck-all" onclick="uncheckAll()">Xóa điểm danh toàn bộ</button>
-            <input type="text" id="searchInput" placeholder="Nhập tìm kiếm cầu thủ..." onkeyup="filterTable()">
-        </div>
-    </div>
-    <div class="search-container">
-        <div class="search-wrapper">
-            
-        </div>
-    </div>
-    <div class="stats-bar">
-        <div class="stat-item">Tổng điểm danh: <span id="availablePlayers">0</span></div>
-    </div>
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th onclick="sortPlayers('name')">
-                        <div class="header-content">Tên <span class="sort-icon">↕</span></div>
-                    </th>
-                    <th onclick="sortPlayers('pots')">
-                        <div class="header-content">Điểm <span class="sort-icon">↕</span></div>
-                    </th>
-                    <th onclick="sortPlayers('available')">
-                        <div class="header-content">Điểm danh <span class="sort-icon">↕</span></div>
-                    </th>
-                    <th></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="playerTableBody"></tbody>
-        </table>
-    </div>
+    <div class="container">
+        <h1>CLB Bóng Đá ⚽</h1>
+        <div class="input-card" id="inputCard">
+            <div class="card-header" onclick="toggleInputCard()">
+                <h4>Thêm cầu thủ mới</h4>
+                <span id="toggleArrow" class="toggle-icon">▼</span>
+            </div>
+            <div id="cardContent" class="card-content">
+                <div class="input-field-group">
+                    <input type="text" id="playerName" placeholder="Nhập tên cầu thủ muốn thêm...">
+                </div>
 
-    <button class="btn-divide" onclick="divideTeams()">Chia đội ngẫu nhiên 🎲</button>
-
-    <div id="results" class="results-grid"></div>
-    <button id="btnShareZalo" class="btn-share" onclick="shareTeams()" style="display: none;">
-        Chia sẻ lên Zalo
-    </button>
-</div>
-
-<div id="deleteModal" class="modal-overlay">
-    <div class="modal-content">
-        <h3>Xóa cầu thủ</h3>
-        <p>Bạn muốn xóa cầu thủ này?</p>
-        <div class="modal-actions">
-            <button class="btn-secondary" onclick="closeModal()">Không</button>
-            <button class="btn-danger" id="confirmDeleteBtn">Có</button>
-        </div>
-    </div>
-</div>
-
-<div id="editModal" class="modal-overlay">
-    <div class="modal-content">
-        <h3>Sửa thông tin</h3>
-        <div class="input-group-vertical">
-            <label>Tên cầu thủ:</label>
-            <input type="text" id="editPlayerName">
-            
-            <div class="slider-wrapper" style="padding: 10px 0;">
-                <div class="slider-label">Điểm: <span id="editScoreValue">2.5</span></div>
-                <input type="range" id="editPlayerScore" min="0" max="5" step="0.25" value="2.5" oninput="updateEditScoreLabel(this.value)">
+                <div class="slider-wrapper">
+                    <div class="slider-label">Điểm đánh giá: <span id="scoreValue"><b>2.5</b></span></div>
+                    <input type="range" id="playerScore" min="0" max="5" step="0.25" value="2.5"
+                        oninput="updateScoreLabel(this.value)">
+                </div>
+                <button class="btn-add-full" onclick="addPlayer()">Thêm cầu thủ</button>
             </div>
         </div>
-        <div class="modal-actions">
-            <button class="btn-secondary" onclick="closeEditModal()">Hủy bỏ</button>
-            <button class="btn-add" id="confirmEditBtn">Lưu thay đổi</button>
+
+        <div class="search-container">
+            <div class="search-wrapper">
+                <button class="btn-uncheck-all" onclick="uncheckAll()">Xóa điểm danh toàn bộ</button>
+                <input type="text" id="searchInput" placeholder="Nhập tìm kiếm cầu thủ..." onkeyup="filterTable()">
+            </div>
+        </div>
+        <div class="search-container">
+            <div class="search-wrapper">
+
+            </div>
+        </div>
+        <div class="stats-bar">
+            <div class="stat-item">Tổng điểm danh: <span id="availablePlayers">0</span></div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th onclick="sortPlayers('name')">
+                            <div class="header-content">Tên <span class="sort-icon">↕</span></div>
+                        </th>
+                        <th onclick="sortPlayers('pots')">
+                            <div class="header-content">Điểm <span class="sort-icon">↕</span></div>
+                        </th>
+                        <th onclick="sortPlayers('available')">
+                            <div class="header-content">Điểm danh <span class="sort-icon">↕</span></div>
+                        </th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="playerTableBody"></tbody>
+            </table>
+        </div>
+
+        <button class="btn-divide" onclick="divideTeams()">Chia đội ngẫu nhiên 🎲</button>
+
+        <div id="results" class="results-grid"></div>
+        <button id="btnShareZalo" class="btn-share" onclick="shareTeams()" style="display: none;">
+            Chia sẻ lên Zalo
+        </button>
+    </div>
+
+    <div id="deleteModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Xóa cầu thủ</h3>
+            <p>Bạn muốn xóa cầu thủ này?</p>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal()">Không</button>
+                <button class="btn-danger" id="confirmDeleteBtn">Có</button>
+            </div>
         </div>
     </div>
-</div>
-<div id="notification" class="notification"></div>
-<div id="uncheckAllModal" class="modal-overlay">
-    <div class="modal-content">
-        <h3>Xóa điểm danh</h3>
-        <p>Bạn có chắc chắn muốn hủy điểm danh toàn bộ cầu thủ không?</p>
-        <div class="modal-actions">
-            <button class="btn-secondary" onclick="closeUncheckModal()">Không</button>
-            <button class="btn-danger" id="confirmUncheckBtn">Xóa hết</button>
+
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Sửa thông tin</h3>
+            <div class="input-group-vertical">
+                <label>Tên cầu thủ:</label>
+                <input type="text" id="editPlayerName">
+
+                <div class="slider-wrapper" style="padding: 10px 0;">
+                    <div class="slider-label">Điểm: <span id="editScoreValue">2.5</span></div>
+                    <input type="range" id="editPlayerScore" min="0" max="5" step="0.25" value="2.5"
+                        oninput="updateEditScoreLabel(this.value)">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeEditModal()">Hủy bỏ</button>
+                <button class="btn-add" id="confirmEditBtn">Lưu thay đổi</button>
+            </div>
         </div>
     </div>
-</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <div id="notification" class="notification"></div>
+    <div id="uncheckAllModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Xóa điểm danh</h3>
+            <p>Bạn có chắc chắn muốn hủy điểm danh toàn bộ cầu thủ không?</p>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeUncheckModal()">Không</button>
+                <button class="btn-danger" id="confirmUncheckBtn">Xóa hết</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
 </body>
+
 </html>
