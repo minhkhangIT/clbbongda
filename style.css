@@ -338,23 +338,3 @@ td:first-child { text-align: left; padding-left: 15px; font-weight: 500; }
     padding-bottom: 10px; /* Smaller padding when closed */
 }
 
-.btn-share {
-    background: #0068ff; /* Zalo Blue */
-    color: white;
-    width: 100%;
-    padding: 16px;
-    font-size: 1.1rem;
-    border-radius: 12px;
-    border: none;
-    font-weight: 800;
-    cursor: pointer;
-    margin-top: 15px;
-    margin-bottom: 25px;
-    transition: 0.2s;
-    box-shadow: 0 4px 12px rgba(0, 104, 255, 0.3);
-}
-
-.btn-share:hover {
-    background: #0056d2;
-    transform: translateY(-2px);
-}
