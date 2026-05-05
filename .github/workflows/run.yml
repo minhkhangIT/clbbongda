@@ -1,0 +1,19 @@
+name: Daily Player Update
+
+on:
+  schedule:
+    # 8 giờ sáng Việt Nam là 1 giờ sáng giờ quốc tế UTC
+    - cron: '0 1 * * *' 
+  workflow_dispatch: # Cho phép bạn bấm nút chạy thử thủ công
+
+jobs:
+  update-available:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update Player Availability via API
+        run: |
+          curl -X PATCH "https://vicrggfxuakpfxzhuktj.supabase.co/rest/v1/players?select=*" \
+          -H "apikey: sb_publishable_vm635kgShm0yeSPboZ5ZLA_OX4OPbN4" \
+          -H "Authorization: Bearer sb_publishable_vm635kgShm0yeSPboZ5ZLA_OX4OPbN4" \
+          -H "Content-Type: application/json" \
+          -d '{ "available": true }'
