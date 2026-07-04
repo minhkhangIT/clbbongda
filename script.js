@@ -158,7 +158,7 @@ function divideTeams() {
         ["Lộc", "Mẫn"]
     ];
 
-    for (let i = 0; i < 500; i++) { // Increased iterations slightly for more constraints
+    for (let i = 0; i < 10000; i++) { // Increased iterations slightly for more constraints
         let currentTeams = Array.from({ length: numTeams }, () => ({ members: [], totalScore: 0 }));
         
         let shuffled = [...pool].sort(() => Math.random() - 0.5);
@@ -201,7 +201,7 @@ function divideTeams() {
         }
         
         // Early break if it's very balanced and follows all rules
-        if (minDiff < 0.25 && !hasConflict) break;
+        if (minDiff < 0.5 && !hasConflict) break;
     }
 
     if (!bestResult) {
