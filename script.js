@@ -156,9 +156,9 @@ function divideTeams() {
         ["Nhân AI", "Trí 1970"],
         ["Nhân AI", "Hùng Đặng"],
         ["Lộc", "Mẫn"]
-    ];
+    ].map(pair => pair.map(name => name.trim().toLowerCase()));
 
-    for (let i = 0; i < 10000; i++) { // Increased iterations slightly for more constraints
+    for (let i = 0; i < 100000; i++) { // Increased iterations slightly for more constraints
         let currentTeams = Array.from({ length: numTeams }, () => ({ members: [], totalScore: 0 }));
         
         let shuffled = [...pool].sort(() => Math.random() - 0.5);
@@ -189,7 +189,7 @@ function divideTeams() {
         const diff = Math.max(...scores) - Math.min(...scores);
 
         const hasConflict = currentTeams.some(team => {
-            const names = team.members.map(m => m.name);
+            const names = team.members.map(m => m.name.trim().toLowerCase());
             // Returns true if ANY forbidden pair is found in the same team
             return forbiddenPairs.some(([p1, p2]) => names.includes(p1) && names.includes(p2));
         });
