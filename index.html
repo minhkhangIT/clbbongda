@@ -24,8 +24,8 @@
                 </div>
 
                 <div class="slider-wrapper">
-                    <div class="slider-label">Điểm đánh giá: <span id="scoreValue"><b>2.5</b></span></div>
-                    <input type="range" id="playerScore" min="0" max="5" step="0.25" value="2.5"
+                    <div class="slider-label">Điểm đánh giá: <span id="scoreValue"><b>5</b></span></div>
+                    <input type="range" id="playerScore" min="0" max="10" step="0.25" value="5"
                         oninput="updateScoreLabel(this.value)">
                 </div>
                 <button class="btn-add-full" onclick="addPlayer()">Thêm cầu thủ</button>
@@ -92,8 +92,8 @@
                 <input type="text" id="editPlayerName">
 
                 <div class="slider-wrapper" style="padding: 10px 0;">
-                    <div class="slider-label">Điểm: <span id="editScoreValue">2.5</span></div>
-                    <input type="range" id="editPlayerScore" min="0" max="5" step="0.25" value="2.5"
+                    <div class="slider-label">Điểm: <span id="editScoreValue">5</span></div>
+                    <input type="range" id="editPlayerScore" min="0" max="10" step="0.25" value="5"
                         oninput="updateEditScoreLabel(this.value)">
                 </div>
             </div>
